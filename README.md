@@ -37,3 +37,131 @@ Your workflow with other database frameworks involves:
 YOU WASTE TIME patching your repository on each database update using other database frameworks because no code is generated for your domain types.
 
 ## Table of Contents
+
+| Topic                                | Category                                                                                                                                                                                                                                             |
+| :----------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Using `dbgo`](#how-do-you-use-dbgo) |                                                                                                                                                                                                                                                      |  |
+| with a domain                        | [1. Define Go types](#step-1-define-go-types-domain-models), [2. Deploy Database](#step-2-deploy-database), [3. Map Domain to Database](#step-3-map-domain-fields-to-database)                                                                       |
+| with a database                      | [4. Configure setup file](#step-4-configure-the-setup-file), [5. Generate SQL](#step-5-generate-sql-statements-and-stored-procedures), [6. Generate Database Consumer](#generate-a-database-consumer-module-for-your-database-based-on-domain-types) |
+|                                      |
+
+## How do you use dbgo?
+
+This demonstration generates a database consumer package for an `Account` domain. 
+
+> _`dbgo` can generate a database consumer module without defining a domain. Skip to [step 4](#step-4-configure-the-setup-file) when this is your use case._
+
+### Step 1. Define Go types (domain models)
+
+Go types are defined in a file.
+
+`./domain/domain.go`
+
+```go
+// Account represents a user's account.
+type Account struct {
+    ID int
+    Username string
+    Password string
+    Name string
+}
+```
+
+### Step 2. Deploy Database
+
+You must connect to an existing database to run `dbgo`.
+
+Here is the database diagram for the database used in this example.
+
+```
+TODO: add database diagram
+```
+
+### Step 3. Map Domain Fields to Database
+
+Map the domain's fields to database schema _(e.g, table)_ fields.
+
+`./domain/domain.go`
+
+```go
+// Account represents a user's account.
+type Account struct {
+    ID int
+    Username string `dbgo:"users.name"`
+    Password string `dbgo:"users.password"`
+    Name string     `dbgo:"accounts.name"`
+}
+```
+
+### Step 4. Configure the setup file
+
+You set up `dbgo` with a YAML file.
+
+`setup.yml`
+
+```yml
+generated:
+    # Define the code generator inputs.
+    input:
+        # domain package containing Go types (relative to the setup file)
+        dpkg: ./domain
+
+        # database connection url
+        dbc: postgresql://user:pass@localhost:5432/dbgo
+
+        # database query directory containing SQL query files (relative to the setup file)
+        queries: datastore/psql/queries
+
+    # Define where the code is generated (relative to the setup file)
+    output:
+        # domain repository package containing repository model functions.
+        dpkg: datastore/domain
+
+        # database package containing database model functions. 
+        dbpkg: datastore/psql
+
+        # Define the optional custom templates used to generate the file (.go supported).
+        # template: ./generate.go
+
+# Define custom options (which are passed to generator options) for customization.
+custom:
+  option: The possibilities are endless.
+```
+
+### Step 5. Generate SQL statements and stored procedures
+
+Use the `dbgo query` manager to add customized type-safe SQL statements or generate them.
+
+Install the command line tool: `dbgo`.
+
+```
+go install github.com/switchupcb/dbgo@latest
+```
+
+Run the executable with given options to add SQL to the  queries directory.
+
+| Command Line                                    | Description                                                                                                                                                                                         |
+| :---------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `db query gen -yml path/to/yml`                 | Generates SQL statements for Read (Select) operations and adds Stored Procedures for Create (Insert), Update, Delete operations to the database.                                                    |
+| `db query template <filename.go> -yml path/to/yml` | Adds a `filename.go` template file to the queries directory containing database models you can use to return a type-safe SQL statement from the `SQL()` function called by `db query add`.          |
+| `db query add <filename.go> -yml path/to/yml`   | Adds an SQL file _(with the same name as the template file \[e.g., `filename.sql`\])_ containing an SQL statement _(returned from the `SQL()` function in `filename.go`)_ to the queries directory. |
+
+_The path to the YML file must be specified in reference to the current working directory._
+
+#### How do you develop type-safe SQL?
+
+Running `db query -t template -yml path/to/yml` adds a `template.go` file with database models as Go types. Use these Go types with [`jet`](https://github.com/go-jet/jet) to return an `stmt.Sql()` from `SQL()`, which cannot be interpreted when code cannot be compiled. 
+
+_Read <a href="https://github.com/go-jet/jet#how-quickly-bugs-are-found" target="_blank">"How quickly bugs are found"</a> for more information._
+
+### Step 6. Generate the database consumer package
+
+Run the executable with given options.
+    
+```bash
+dbgo gen -yml path/to/yml
+```
+
+_The path to the YML file must be specified in reference to the current working directory._
+
+**You can view the output of this example [here](/examples/main/).**
