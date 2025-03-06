@@ -1,0 +1,26 @@
+generated:
+    # Define the code generator inputs.
+    input:
+        # domain package containing Go types (relative to the setup file)
+        dpkg: ./domain
+
+        # database connection url
+        dbc: postgresql://user:pass@localhost:5432/dbgo
+
+        # database query directory containing SQL query files (relative to the setup file)
+        queries: datastore/psql/queries
+
+    # Define where the code is generated (relative to the setup file)
+    output:
+        # domain repository package containing repository model functions.
+        dpkg: datastore/domain
+
+        # database package containing database model functions. 
+        dbpkg: datastore/psql
+
+        # Define the optional custom templates used to generate the file (.go supported).
+        # template: ./generate.go
+
+# Define custom options (which are passed to generator options) for customization.
+custom:
+  option: The possibilities are endless.

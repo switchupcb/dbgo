@@ -5,8 +5,11 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
+	query "github.com/switchupcb/dbgo/cmd/dbgo_query"
 )
 
 const (
@@ -19,7 +22,31 @@ var cmdQueryGen = &cobra.Command{
 	Short: "Generates SQL statements from your database.",
 	Long:  subcommand_description_gen,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("query gen called")
+		// check for unexpected arguments
+		if len(args) != 0 {
+			args_string := strings.Join(args, " ")
+			fmt.Fprintf(os.Stderr, "Unexpected arguments found: %q", args_string)
+
+			os.Exit(1)
+		}
+
+		// parse the "-yml" flag.
+		yml, err := parseYML(cmdDBGO.PersistentFlags().Lookup(flag_yml_name))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+
+			os.Exit(1)
+		}
+
+		// Run the generator.
+		output, err := query.Gen(*yml)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+
+			os.Exit(1)
+		}
+
+		fmt.Println(output)
 	},
 }
 

@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
+	query "github.com/switchupcb/dbgo/cmd/dbgo_query"
 )
 
 const (
@@ -16,7 +18,39 @@ var templateCmd = &cobra.Command{
 	Short: "Add an SQL generator template file to your queries directory.",
 	Long:  subcommand_description_template,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("template called")
+		// check for expected arguments.
+		if len(args) == 0 {
+			fmt.Fprint(os.Stderr, flag_filepath_usage_unspecified)
+
+			os.Exit(1)
+		}
+
+		// parse the "-yml" flag.
+		yml, err := parseYML(cmdDBGO.PersistentFlags().Lookup(flag_yml_name))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+
+			os.Exit(1)
+		}
+
+		// run the generator for each filepath argument.
+		for _, arg := range args {
+			abspath, err := parseArgFilepath(arg)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+
+				continue
+			}
+
+			output, err := query.Template(abspath, *yml)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+
+				continue
+			}
+
+			fmt.Println(output)
+		}
 	},
 }
 

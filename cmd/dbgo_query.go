@@ -13,7 +13,4 @@ var cmdQuery = &cobra.Command{
 
 func init() {
 	cmdDBGO.AddCommand(cmdQuery)
-
-	// Persistent Flags work for this command and all subcommands.
-	cmdQuery.PersistentFlags().String("yml", "", flag_yml_usage)
 }

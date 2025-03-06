@@ -3,12 +3,11 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/switchupcb/dbgo/cmd/gen"
+	gen "github.com/switchupcb/dbgo/cmd/dbgo_gen"
 )
-
-var ymlFlag *string
 
 // cmdGen represents the gen command
 var cmdGen = &cobra.Command{
@@ -16,16 +15,30 @@ var cmdGen = &cobra.Command{
 	Short: "Use `dbgo gen -yml path/to/yml` to generate a database consumer package.",
 	Long:  "Use `dbgo gen -yml path/to/yml` to generate a database consumer package based on domain types, a database, and SQL queries.",
 	Run: func(cmd *cobra.Command, args []string) {
-		// todo: https://github.com/spf13/cobra/issues/2250
-		if *ymlFlag == "" {
-			fmt.Println(flag_yml_usage_unspecified)
+		// check for unexpected arguments
+		if len(args) != 0 {
+			args_string := strings.Join(args, " ")
+			fmt.Fprintf(os.Stderr, "Unexpected arguments found: %q", args_string)
+
+			if args_string == cmdQuery.Use {
+				fmt.Printf("\n\nDid you mean dbgo %v gen?", cmdQuery.Use)
+			}
 
 			os.Exit(1)
 		}
 
-		output, err := gen.Run(*ymlFlag)
+		// parse the "-yml" flag.
+		yml, err := parseYML(cmdDBGO.PersistentFlags().Lookup(flag_yml_name))
 		if err != nil {
-			fmt.Printf("error: %v", err)
+			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+
+			os.Exit(1)
+		}
+
+		// Run the generator.
+		output, err := gen.Run(*yml)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
 			os.Exit(1)
 		}
@@ -36,6 +49,4 @@ var cmdGen = &cobra.Command{
 
 func init() {
 	cmdDBGO.AddCommand(cmdGen)
-
-	ymlFlag = cmdGen.Flags().String("yml", "", flag_yml_usage)
 }
