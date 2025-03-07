@@ -37,7 +37,5 @@ func Execute() {
 
 func init() {
 	// Persistent Flags work for this command and all subcommands.
-	cmdDBGO.PersistentFlags().String(flag_yml_name, "", flag_yml_usage)
+	cmdDBGO.PersistentFlags().StringVarP(ymlFlag, flag_yml_name, flag_yml_shorthand, "", flag_yml_usage)
 }
-
-// todo: https://github.com/spf13/cobra/issues/2252

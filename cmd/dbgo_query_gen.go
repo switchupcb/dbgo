@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -30,8 +27,8 @@ var cmdQueryGen = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// parse the "-yml" flag.
-		yml, err := parseYML(cmdDBGO.PersistentFlags().Lookup(flag_yml_name))
+		// parse the "--yml" flag.
+		yml, err := parseYML()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 

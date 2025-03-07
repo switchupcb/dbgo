@@ -4,13 +4,15 @@ generated:
         # domain package containing Go types (relative to the setup file)
         dpkg: ./domain
 
-        # database connection url
-        dbc: postgresql://user:pass@localhost:5432/dbgo
+        # database connection and schema (public by default).
+        db: 
+            connection: postgresql://postgres:env@localhost:5432/dbgo?sslmode=disable 
+            schema: public
 
-        # database query directory containing SQL query files (relative to the setup file)
+        # database query directory containing SQL query files (relative to the setup file).
         queries: datastore/psql/queries
 
-    # Define where the code is generated (relative to the setup file)
+    # Define where the code is generated (relative to the setup file).
     output:
         # domain repository package containing repository model functions.
         dpkg: datastore/domain

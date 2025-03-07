@@ -27,6 +27,8 @@ func LoadYML(relativepath string) (*YML, error) {
 		return nil, fmt.Errorf("error occurred while determining the absolute file path of the setup file\n%v", relativepath)
 	}
 
+	yml.Abspath = absloadpath
+
 	// determine the actual filepath of the domain package and queries directory.
 	yml.Generated.Input.Dpkg = filepath.Join(filepath.Dir(absloadpath), yml.Generated.Input.Dpkg)
 	yml.Generated.Input.Queries = filepath.Join(filepath.Dir(absloadpath), yml.Generated.Input.Queries)

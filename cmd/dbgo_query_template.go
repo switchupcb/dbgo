@@ -3,34 +3,52 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	query "github.com/switchupcb/dbgo/cmd/dbgo_query"
 )
 
 const (
-	subcommand_description_template = "Adds a `filename.go` template file to the queries directory containing database models you can use to return a type-safe SQL statement from the `SQL()` function called by `db query add`."
+	subcommand_description_template = "Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`."
 )
 
 // templateCmd represents the template command
 var templateCmd = &cobra.Command{
 	Use:   "template",
-	Short: "Add an SQL generator template file to your queries directory.",
+	Short: "Add an SQL generator template to your queries directory.",
 	Long:  subcommand_description_template,
 	Run: func(cmd *cobra.Command, args []string) {
-		// check for expected arguments.
-		if len(args) == 0 {
-			fmt.Fprint(os.Stderr, flag_filepath_usage_unspecified)
-
-			os.Exit(1)
-		}
-
-		// parse the "-yml" flag.
-		yml, err := parseYML(cmdDBGO.PersistentFlags().Lookup(flag_yml_name))
+		// parse the "--yml" flag.
+		yml, err := parseYML()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
 			os.Exit(1)
+		}
+
+		// run the generator for each template.
+		if len(args) == 0 {
+			queriesGoTemplatesDir := filepath.Join(yml.Generated.Input.Queries, queriesGoTemplatesDirname)
+			files, err := os.ReadDir(queriesGoTemplatesDir)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+
+				os.Exit(1)
+			}
+
+			for i := range files {
+				output, err := query.Template(filepath.Join(queriesGoTemplatesDir, files[i].Name()), *yml)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+
+					continue
+				}
+
+				fmt.Println("\n", output)
+			}
+
+			return
 		}
 
 		// run the generator for each filepath argument.

@@ -8,7 +8,7 @@ import (
 var cmdQuery = &cobra.Command{
 	Use:   "query",
 	Short: "Use the `dbgo query` manager to manage SQL statements.",
-	Long:  "Use the `dbgo query` manager to add customized type-safe SQL statements or generate them.",
+	Long:  "Use the `dbgo query` manager to save customized type-safe SQL statements or generate them.",
 }
 
 func init() {

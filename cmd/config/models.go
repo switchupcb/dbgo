@@ -3,6 +3,7 @@ package config
 
 // YML represents the first level of the YML file.
 type YML struct {
+	Abspath   string
 	Generated Generated              `yaml:"generated"`
 	Options   map[string]interface{} `yaml:"custom"`
 }
@@ -16,8 +17,14 @@ type Generated struct {
 // Input represents generator input properties of the YML file.
 type Input struct {
 	Dpkg    string `yaml:"dpkg"`
-	Dbc     string `yaml:"dbc"`
+	DB      DB     `yaml:"db"`
 	Queries string `yaml:"queries"`
+}
+
+// DB represents generator input database properties of the YML file.
+type DB struct {
+	Connection string `yaml:"connection"`
+	Schema     string `yaml:"schema"`
 }
 
 // Output represents generator output properties of the YML file.

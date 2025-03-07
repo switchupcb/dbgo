@@ -12,8 +12,8 @@ import (
 // cmdGen represents the gen command
 var cmdGen = &cobra.Command{
 	Use:   "gen",
-	Short: "Use `dbgo gen -yml path/to/yml` to generate a database consumer package.",
-	Long:  "Use `dbgo gen -yml path/to/yml` to generate a database consumer package based on domain types, a database, and SQL queries.",
+	Short: "Use `dbgo gen --yml path/to/yml` to generate a database consumer package.",
+	Long:  "Use `dbgo gen --yml path/to/yml` to generate a database consumer package based on domain types, a database, and SQL queries.",
 	Run: func(cmd *cobra.Command, args []string) {
 		// check for unexpected arguments
 		if len(args) != 0 {
@@ -27,8 +27,8 @@ var cmdGen = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// parse the "-yml" flag.
-		yml, err := parseYML(cmdDBGO.PersistentFlags().Lookup(flag_yml_name))
+		// parse the "--yml" flag.
+		yml, err := parseYML()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
