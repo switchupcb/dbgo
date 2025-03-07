@@ -108,6 +108,7 @@ generated:
 
         # database connection and schema (public by default).
         db: 
+            # connection string or environment variable (e.g., `$VAR`)
             connection: postgresql://user:pass@localhost:5432/dbgo?sslmode=disable 
             schema: public
 

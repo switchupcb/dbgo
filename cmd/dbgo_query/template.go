@@ -13,6 +13,8 @@ import (
 )
 
 const (
+	databaseConnectionEnvironmentVariableSymbol = '$'
+
 	templateGoSchemaFilename = "schema.go"
 
 	file_content_static = `
@@ -38,6 +40,10 @@ func SQL() (string, error) {
 func Template(abspath string, yml config.YML) (string, error) {
 	if yml.Generated.Input.DB.Connection == "" {
 		return "", fmt.Errorf("you must specify a database connection ('dbc') in the .yml configuration file")
+	}
+
+	if yml.Generated.Input.DB.Connection[0] == databaseConnectionEnvironmentVariableSymbol {
+		yml.Generated.Input.DB.Connection = os.Getenv(yml.Generated.Input.DB.Connection[1:])
 	}
 
 	if yml.Generated.Input.DB.Schema == "" {

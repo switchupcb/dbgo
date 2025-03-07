@@ -6,7 +6,7 @@ generated:
 
         # database connection and schema (public by default).
         db: 
-            connection: postgresql://postgres:env@localhost:5432/dbgo?sslmode=disable 
+            connection: $DATABASE_CONNECTION_STRING
             schema: public
 
         # database query directory containing SQL query files (relative to the setup file).
