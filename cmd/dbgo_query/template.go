@@ -46,7 +46,7 @@ func Template(abspath string, yml config.YML) (string, error) {
 
 	template_name := filepath.Base(abspath)
 
-	fmt.Printf("ADDING TEMPLATE %v to %v\n", template_name, abspath)
+	fmt.Printf("ADDING TEMPLATE %v to %v\n\n", template_name, abspath)
 
 	// Generate the database schema models as Go types.
 	sqlGoDirpath := filepath.Join(
@@ -93,8 +93,7 @@ func Template(abspath string, yml config.YML) (string, error) {
 				return nil
 			}
 
-			// TODO: No guarantee of xstruct path yet
-			xstruct := exec.Command("./xstruct", "-d", path, "-p", template_name, "-f", "-g")
+			xstruct := exec.Command("xstruct", "-d", path, "-p", template_name, "-f", "-g")
 			std, err := xstruct.CombinedOutput()
 			if err != nil {
 				return fmt.Errorf("xstruct called from %q: %v", path, string(std))

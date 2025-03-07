@@ -134,6 +134,11 @@ custom:
 
 Use the `dbgo query` manager to save customized type-safe SQL statements or generate them.
 
+Install the command line tool: `xstruct`.
+```
+go install github.com/switchupcb/xstruct@latest
+```
+
 Install the command line tool: `dbgo`.
 
 ```
@@ -161,6 +166,12 @@ Running `db query template <name> -y path/to/yml` adds a `name.go` file with dat
 _Read <a href="https://github.com/go-jet/jet#how-quickly-bugs-are-found" target="_blank">"How quickly bugs are found"</a> for more information._
 
 ### Step 6. Generate the database consumer package
+
+Install the command line tool when you haven't already: `dbgo`.
+
+```
+go install github.com/switchupcb/dbgo@latest
+```
 
 Run the executable with given options.
     
