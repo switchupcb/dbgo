@@ -7,9 +7,9 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/go-jet/jet/v2/generator/postgres"
 	_ "github.com/lib/pq"
 	"github.com/switchupcb/dbgo/cmd/config"
+	"github.com/switchupcb/jet/v2/generator/postgres"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 
 	file_content_static = `
 
-import . "github.com/go-jet/jet/v2/postgres"
+import . "github.com/switchupcb/jet/v2/postgres"
 
 // SQL returns return an SQL statement.
 //
@@ -36,7 +36,6 @@ func SQL() (string, error) {
 
 // Template runs dbgo query template programmatically using the given filepath and YML.
 func Template(abspath string, yml config.YML) (string, error) {
-
 	if yml.Generated.Input.DB.Connection == "" {
 		return "", fmt.Errorf("you must specify a database connection ('dbc') in the .yml configuration file")
 	}
@@ -45,8 +44,11 @@ func Template(abspath string, yml config.YML) (string, error) {
 		yml.Generated.Input.DB.Schema = "public"
 	}
 
-	// Generate the database schema models as Go types.
 	template_name := filepath.Base(abspath)
+
+	fmt.Printf("ADDING TEMPLATE %v to %v\n", template_name, abspath)
+
+	// Generate the database schema models as Go types.
 	sqlGoDirpath := filepath.Join(
 		yml.Generated.Input.Queries, // queries
 		queriesGoTemplatesDirname,   // templates
@@ -144,7 +146,7 @@ func Template(abspath string, yml config.YML) (string, error) {
 		return "", fmt.Errorf("template: write: %w", err)
 	}
 
-	return fmt.Sprintf("added template %q to %v", template_name, filepath.Dir(templateFilepath)), nil
+	return fmt.Sprintf("ADDED TEMPLATE %q to %v", template_name, filepath.Dir(templateFilepath)), nil
 }
 
 // countDirFiles counts the number of non-directory files in a directory.

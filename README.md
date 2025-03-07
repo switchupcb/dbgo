@@ -152,8 +152,7 @@ _Here are additional usage notes._
 - _`-y`, `--yml`: The path to the YML file must be specified in reference to the current working directory._
 - _`db query template`: Every template is updated when this command is executed without a specified template._
 - _`db query save`: Every template is saved when this command is executed without a specified template._
-
-
+- _`db query save`: You are not required to initialize a `go.mod` file to run templates, but using `go get github.com/switchupcb/jet/v2@dbgo` in a `go.mod` related to the template files helps you identify compiler errors in your template files._
 
 #### How do you develop type-safe SQL?
 

@@ -1,42 +1,42 @@
 package name
 
-import "github.com/go-jet/jet/v2/postgres"
+import "github.com/switchupcb/jet/v2/postgres"
 
 var (
-	Accounts	= newAccountsTable("public", "accounts", "")
-	Users		= newUsersTable("public", "users", "")
+	Accounts = newAccountsTable("public", "accounts", "")
+	Users    = newUsersTable("public", "users", "")
 )
 
 type (
-	accountsTable	struct {
+	accountsTable struct {
 		postgres.Table
-		ID		postgres.ColumnInteger
-		FirstName	postgres.ColumnString
-		LastName	postgres.ColumnString
-		Email		postgres.ColumnString
-		CreatedAt	postgres.ColumnTimestamp
-		UpdatedAt	postgres.ColumnTimestamp
-		AllColumns	postgres.ColumnList
-		MutableColumns	postgres.ColumnList
+		ID             postgres.ColumnInteger
+		FirstName      postgres.ColumnString
+		LastName       postgres.ColumnString
+		Email          postgres.ColumnString
+		CreatedAt      postgres.ColumnTimestamp
+		UpdatedAt      postgres.ColumnTimestamp
+		AllColumns     postgres.ColumnList
+		MutableColumns postgres.ColumnList
 	}
-	AccountsTable	struct {
+	AccountsTable struct {
 		accountsTable
-		EXCLUDED	accountsTable
+		EXCLUDED accountsTable
 	}
-	usersTable	struct {
+	usersTable struct {
 		postgres.Table
-		ID		postgres.ColumnInteger
-		Name		postgres.ColumnString
-		Password	postgres.ColumnString
-		Email		postgres.ColumnString
-		CreatedAt	postgres.ColumnTimestamp
-		UpdatedAt	postgres.ColumnTimestamp
-		AllColumns	postgres.ColumnList
-		MutableColumns	postgres.ColumnList
+		ID             postgres.ColumnInteger
+		Name           postgres.ColumnString
+		Password       postgres.ColumnString
+		Email          postgres.ColumnString
+		CreatedAt      postgres.ColumnTimestamp
+		UpdatedAt      postgres.ColumnTimestamp
+		AllColumns     postgres.ColumnList
+		MutableColumns postgres.ColumnList
 	}
-	UsersTable	struct {
+	UsersTable struct {
 		usersTable
-		EXCLUDED	usersTable
+		EXCLUDED usersTable
 	}
 )
 
@@ -61,14 +61,14 @@ func newUsersTable(schemaName, tableName, alias string) *UsersTable {
 }
 func newUsersTableImpl(schemaName, tableName, alias string) usersTable {
 	var (
-		IDColumn	= postgres.IntegerColumn("id")
-		NameColumn	= postgres.StringColumn("name")
-		PasswordColumn	= postgres.StringColumn("password")
-		EmailColumn	= postgres.StringColumn("email")
-		CreatedAtColumn	= postgres.TimestampColumn("created_at")
-		UpdatedAtColumn	= postgres.TimestampColumn("updated_at")
-		allColumns	= postgres.ColumnList{IDColumn, NameColumn, PasswordColumn, EmailColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns	= postgres.ColumnList{NameColumn, PasswordColumn, EmailColumn, CreatedAtColumn, UpdatedAtColumn}
+		IDColumn        = postgres.IntegerColumn("id")
+		NameColumn      = postgres.StringColumn("name")
+		PasswordColumn  = postgres.StringColumn("password")
+		EmailColumn     = postgres.StringColumn("email")
+		CreatedAtColumn = postgres.TimestampColumn("created_at")
+		UpdatedAtColumn = postgres.TimestampColumn("updated_at")
+		allColumns      = postgres.ColumnList{IDColumn, NameColumn, PasswordColumn, EmailColumn, CreatedAtColumn, UpdatedAtColumn}
+		mutableColumns  = postgres.ColumnList{NameColumn, PasswordColumn, EmailColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 	return usersTable{Table: postgres.NewTable(schemaName, tableName, alias, allColumns...), ID: IDColumn, Name: NameColumn, Password: PasswordColumn, Email: EmailColumn, CreatedAt: CreatedAtColumn, UpdatedAt: UpdatedAtColumn, AllColumns: allColumns, MutableColumns: mutableColumns}
 }
@@ -89,14 +89,14 @@ func newAccountsTable(schemaName, tableName, alias string) *AccountsTable {
 }
 func newAccountsTableImpl(schemaName, tableName, alias string) accountsTable {
 	var (
-		IDColumn	= postgres.IntegerColumn("id")
-		FirstNameColumn	= postgres.StringColumn("first_name")
-		LastNameColumn	= postgres.StringColumn("last_name")
-		EmailColumn	= postgres.StringColumn("email")
-		CreatedAtColumn	= postgres.TimestampColumn("created_at")
-		UpdatedAtColumn	= postgres.TimestampColumn("updated_at")
-		allColumns	= postgres.ColumnList{IDColumn, FirstNameColumn, LastNameColumn, EmailColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns	= postgres.ColumnList{FirstNameColumn, LastNameColumn, EmailColumn, CreatedAtColumn, UpdatedAtColumn}
+		IDColumn        = postgres.IntegerColumn("id")
+		FirstNameColumn = postgres.StringColumn("first_name")
+		LastNameColumn  = postgres.StringColumn("last_name")
+		EmailColumn     = postgres.StringColumn("email")
+		CreatedAtColumn = postgres.TimestampColumn("created_at")
+		UpdatedAtColumn = postgres.TimestampColumn("updated_at")
+		allColumns      = postgres.ColumnList{IDColumn, FirstNameColumn, LastNameColumn, EmailColumn, CreatedAtColumn, UpdatedAtColumn}
+		mutableColumns  = postgres.ColumnList{FirstNameColumn, LastNameColumn, EmailColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 	return accountsTable{Table: postgres.NewTable(schemaName, tableName, alias, allColumns...), ID: IDColumn, FirstName: FirstNameColumn, LastName: LastNameColumn, Email: EmailColumn, CreatedAt: CreatedAtColumn, UpdatedAt: UpdatedAtColumn, AllColumns: allColumns, MutableColumns: mutableColumns}
 }

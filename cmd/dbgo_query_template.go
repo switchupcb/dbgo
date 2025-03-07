@@ -40,12 +40,12 @@ var templateCmd = &cobra.Command{
 			for i := range files {
 				output, err := query.Template(filepath.Join(queriesGoTemplatesDir, files[i].Name()), *yml)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+					fmt.Fprintf(os.Stderr, "%v\n\n", fmt.Errorf("%w", err))
 
 					continue
 				}
 
-				fmt.Println("\n", output)
+				fmt.Printf("%v\n\n", output)
 			}
 
 			return
@@ -55,19 +55,19 @@ var templateCmd = &cobra.Command{
 		for _, arg := range args {
 			abspath, err := parseArgFilepath(arg)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+				fmt.Fprintf(os.Stderr, "%v\n\n", fmt.Errorf("%w", err))
 
 				continue
 			}
 
 			output, err := query.Template(abspath, *yml)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
+				fmt.Fprintf(os.Stderr, "%v\n\n", fmt.Errorf("%w", err))
 
 				continue
 			}
 
-			fmt.Println(output)
+			fmt.Printf("%v\n\n", output)
 		}
 	},
 }

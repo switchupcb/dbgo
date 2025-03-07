@@ -11,11 +11,11 @@ import (
 	"github.com/traefik/yaegi/stdlib"
 )
 
-const interpretedFunction = "sql.SQL"
+const interpretedFunctionName = "SQL"
 
 // interpretFunction loads a template symbol from an interpreter.
 func interpretFunction(dirpath string) (string, error) {
-	files, err := os.ReadDir(dirpath)
+	_, err := os.ReadDir(dirpath)
 	if err != nil {
 		return "", fmt.Errorf("error loading template: %v\nIs the relative or absolute filepath set correctly?\n%w", dirpath, err)
 	}
@@ -36,20 +36,18 @@ func interpretFunction(dirpath string) (string, error) {
 		return "", fmt.Errorf("error loading template imported symbols: %w", err)
 	}
 
-	// load the source
-	for index := range files {
-		srcpath := filepath.Join(dirpath, files[index].Name())
-		src, err := os.ReadFile(srcpath)
-		if err != nil {
-			return "", fmt.Errorf("error evaluating template file src: %w", err)
-		}
+	// load the source (in a specific order)
+	if _, err := i.EvalPath(filepath.Join(dirpath, templateGoSchemaFilename)); err != nil {
+		return "", fmt.Errorf("error compiling template schema.go file: %w", err)
+	}
 
-		if _, err := i.Eval(string(src)); err != nil {
-			return "", fmt.Errorf("error evaluating template file: %w", err)
-		}
+	if _, err := i.EvalPath(filepath.Join(dirpath, filepath.Base(dirpath)+fileExtGo)); err != nil {
+		return "", fmt.Errorf("error compiling template.go file: %w", err)
 	}
 
 	// load the func from the interpreter
+	interpretedFunction := filepath.Base(dirpath) + "." + interpretedFunctionName
+
 	v, err := i.Eval(interpretedFunction)
 	if err != nil {
 		return "", fmt.Errorf("error evaluating template function. Is it located in the file?\n%w", err)

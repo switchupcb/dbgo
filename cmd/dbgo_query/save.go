@@ -14,7 +14,7 @@ func Save(abspath string, yml config.YML) (string, error) {
 	sql_filename := filename + fileExtSQL
 	sql_filepath := filepath.Join(yml.Generated.Input.Queries, sql_filename)
 
-	fmt.Printf("Saving %v query from template at %v\n", sql_filename, abspath)
+	fmt.Printf("SAVING QUERY %v from template at %v\n", sql_filename, abspath)
 
 	// sqlcode is returned from an interpreted function which returns type-safe SQL in a string.
 	sqlcode, err := interpretFunction(abspath)
@@ -27,5 +27,5 @@ func Save(abspath string, yml config.YML) (string, error) {
 		return "", fmt.Errorf("error creating sql file: %w", err)
 	}
 
-	return fmt.Sprintf("%v query saved from template at %v", sql_filename, abspath), nil
+	return fmt.Sprintf("%v QUERY SAVED from template at %v", sql_filename, abspath), nil
 }

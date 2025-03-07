@@ -1,6 +1,8 @@
 package name
 
-import . "github.com/go-jet/jet/v2/postgres"
+import (
+	. "github.com/switchupcb/jet/v2/postgres"
+)
 
 // SQL returns return an SQL statement.
 //
