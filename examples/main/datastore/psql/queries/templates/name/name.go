@@ -1,8 +1,6 @@
 package name
 
-import (
-	. "github.com/switchupcb/jet/v2/postgres"
-)
+import . "github.com/switchupcb/jet/v2/postgres"
 
 // SQL returns return an SQL statement.
 //
@@ -10,7 +8,7 @@ import (
 //
 // Read https://github.com/go-jet/jet#lets-write-some-sql-queries-in-go for more information.
 func SQL() (string, error) {
-	stmt := SELECT(Accounts.AllColumns).FROM(Accounts)
+	stmt := SELECT(Accounts.AllColumns).FROM(Accounts.Table)
 
 	query, _ := stmt.Sql()
 

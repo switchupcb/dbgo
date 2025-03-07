@@ -58,6 +58,19 @@ func interpretFunction(dirpath string) (string, error) {
 		return "", errors.New("the template function `SQL` could not be type asserted. Is it a func() (string, error)?")
 	}
 
+	defer func() {
+		if r := recover(); r != nil {
+			r_msg, ok := r.(string)
+			if !ok {
+				fmt.Println("impossible recovery")
+			}
+
+			fmt.Printf("\t%v", r_msg)
+
+			os.Exit(1)
+		}
+	}()
+
 	content, err := fn()
 	if err != nil {
 		return "", fmt.Errorf("%w", err)

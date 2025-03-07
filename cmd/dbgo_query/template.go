@@ -71,7 +71,7 @@ func Template(abspath string, yml config.YML) (string, error) {
 
 	// Merge generated files to a single schema.go file.
 	file_content_schemas := [][]byte{
-		[]byte("package " + template_name + "\n\n" + "import \"github.com/go-jet/jet/v2/postgres\""),
+		[]byte("package " + template_name + "\n\n" + "import \"github.com/switchupcb/jet/v2/postgres\""),
 	}
 
 	if err := filepath.WalkDir(sqlGoDirpath, func(path string, d fs.DirEntry, err error) error {
