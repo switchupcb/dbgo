@@ -8,8 +8,6 @@ import (
 	"github.com/switchupcb/dbgo/cmd/config"
 )
 
-const newline_char = "\n"
-
 // Save runs dbgo query save programmatically using the given filepath and YML.
 func Save(abspath string, yml config.YML) (string, error) {
 	filename := filepath.Base(abspath)
@@ -24,7 +22,7 @@ func Save(abspath string, yml config.YML) (string, error) {
 		return "", fmt.Errorf("interpreter: %w", err)
 	}
 
-	if sqlcode[0:1] == newline_char {
+	if sqlcode[0] == newline {
 		sqlcode = sqlcode[1:]
 	}
 

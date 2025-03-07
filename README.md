@@ -135,18 +135,23 @@ custom:
 
 Use the `dbgo query` manager to save customized type-safe SQL statements or generate them.
 
-Install the command line tool: `xstruct`.
+**1\)** Install the command line tool: `xstruct`.
 ```
 go install github.com/switchupcb/xstruct@latest
 ```
 
-Install the command line tool: `dbgo`.
+**2\)** Install the command line tool: `sqlc`.
+```
+go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+```
+
+**3\)** Install the command line tool: `dbgo`.
 
 ```
 go install github.com/switchupcb/dbgo@latest
 ```
 
-Run the executable with given options to add SQL to the queries directory.
+**4\)** Run the executable with the following options to add SQL to the queries directory.
 
 | Command Line                                | Description                                                                                                                                                                                                                           |
 | :------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

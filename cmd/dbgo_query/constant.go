@@ -7,4 +7,8 @@ const (
 
 	sqlGoDir                  = "go"
 	queriesGoTemplatesDirname = "templates"
+
+	newline    = '\n'
+	colon      = ':'
+	whitespace = ' '
 )

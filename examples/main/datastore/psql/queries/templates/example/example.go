@@ -6,5 +6,5 @@ package example
 //
 // Read https://github.com/go-jet/jet#lets-write-some-sql-queries-in-go for more information.
 func SQL() (string, error) {
-	return "SELECT * FROM accounts", nil
+	return "SELECT * FROM accounts;", nil
 }
