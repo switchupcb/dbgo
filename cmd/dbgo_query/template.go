@@ -148,8 +148,14 @@ func Template(abspath string, yml config.YML) (string, error) {
 		template_name+fileExtGo,     // template.go
 	)
 
-	if err := os.WriteFile(templateFilepath, file_content, writeFileMode); err != nil {
-		return "", fmt.Errorf("template: write: %w", err)
+	if _, err := os.Stat(templateFilepath); err == nil {
+
+	} else if errors.Is(err, os.ErrNotExist) {
+		if err := os.WriteFile(templateFilepath, file_content, writeFileMode); err != nil {
+			return "", fmt.Errorf("template: write: %w", err)
+		}
+	} else {
+		return "", fmt.Errorf("error checking for template file space: %w", err)
 	}
 
 	return fmt.Sprintf("ADDED TEMPLATE %q to %v", template_name, filepath.Dir(templateFilepath)), nil
