@@ -19,9 +19,9 @@ _NOTE: You can read the [roadmap](/ROADMAP.md) for a list of implemented feature
 
 ### What is your workflow with dbgo?
 
-Your workflow with `dbgo` involves defining Go types _(e.g., domain models)_ and connecting to an existing database to generate:
-1. a Repository Go package _(e.g., for a business domain)_ which transfers data from a datastore to your domain models.
-2. a Datastore Go package _(e.g., for a `psql` database)_ without unnecessary "data access objects" or "data transfer functionality" _to reduce CPU usage and memory allocations_.
+Your workflow with `dbgo` involves defining Go types _(e.g., domain models)_ and connecting to an existing database to generate a:
+1. Repository Go package _(e.g., for a business domain)_ which transfers data from a datastore to your domain models.
+2. Datastore Go package _(e.g., for a `psql` database)_ without unnecessary "data access objects" or "data transfer functionality" _to reduce CPU usage and memory allocations_.
    1. Database Go types for Read (Select) operations which do not use reflection during runtime.
    2. Database Driver Go code to call **C**reate (Insert), **R**ead (Select), **U**pdate, **D**elete operations in a single or batch statement.
    3. Database Query Manager to manage your SQL queries and Stored Procedures.
@@ -41,12 +41,12 @@ YOU WASTE TIME patching your repository on each database update using other data
 
 ## Table of Contents
 
-| Topic                                | Category                                                                                                                                                                                                                                          |
-| :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [Using `dbgo`](#how-do-you-use-dbgo) |                                                                                                                                                                                                                                                   |  |
-| with a domain                        | [1. Define Go types](#step-1-define-go-types-domain-models), [2. Deploy Database](#step-2-deploy-database), [3. Map Domain to Database](#step-3-map-domain-fields-to-database)                                                                    |
-| with a database                      | [4. Configure setup file](#step-4-configure-the-setup-file), [5. Generate SQL](#step-5-generate-sql-queries-and-stored-procedures), [6. Generate Database Consumer](#generate-a-database-consumer-module-for-your-database-based-on-domain-types) |
-| [License](#what-is-the-license)      | [What can I do?](#what-can-you-do-with-this-license)                                                                                                                                                                                              |
+| Topic                                | Category                                                                                                                                                                                                                       |
+| :----------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Using `dbgo`](#how-do-you-use-dbgo) |                                                                                                                                                                                                                                |  |
+| with a domain                        | [1. Define Go types](#step-1-define-go-types-domain-models), [2. Deploy Database](#step-2-deploy-database), [3. Map Domain to Database](#step-3-map-domain-fields-to-database)                                                 |
+| with a database                      | [4. Configure setup file](#step-4-configure-the-setup-file), [5. Generate SQL](#step-5-generate-sql-statements), [6. Generate Database Consumer](#generate-a-database-consumer-module-for-your-database-based-on-domain-types) |
+| [License](#what-is-the-license)      | [What can I do?](#what-can-you-do-with-this-license)                                                                                                                                                                           |
 
 ## How do you use dbgo?
 
@@ -132,7 +132,7 @@ custom:
   option: The possibilities are endless.
 ```
 
-### Step 5. Generate SQL queries and stored procedures
+### Step 5. Generate SQL statements
 
 Use the `dbgo query` manager to save customized type-safe SQL statements or generate them.
 

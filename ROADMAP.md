@@ -30,3 +30,7 @@ Generated SQL statement-calling Go code is optimized for CPU usage and memory al
 An example of a structural optimization provided by the program is mapping SQL query results directly to domain models (Go types) to avoid memory allocations of a "data access object" and "domain transfer objects".
 
 Structural optimizations provided by the program are already implemented by March 24, 2025. So, the March 31, 2025 update includes optimizations which have not been implemented _(e.g., in generated code)_.
+
+## Future: Stored Procedures
+
+You can use `dbgo` to add Stored Procedures to your database for Create (Insert), Read, and Update operations.
