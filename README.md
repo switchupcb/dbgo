@@ -1,16 +1,19 @@
 # Generate a database consumer module for your database based on domain types.
 
+[![Go Doc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=for-the-badge&logo=appveyor&logo=appveyor)](https://pkg.go.dev/github.com/switchupcb/dbgo)
+[![License](https://img.shields.io/github/license/switchupcb/dbgo.svg?style=for-the-badge)](https://github.com/switchupcb/dbgo/blob/main/LICENSE)
+
 Use `dbgo` to stop wasting time developing optimized code (e.g, `Go`, `SQL`) for your database and domain models.
+
+_NOTE: You can read the [roadmap](/ROADMAP.md) for a list of implemented features as this repository is under development._
 
 ## What is dbgo?
 
-`dbgo` generates a database consumer package for your database and domain models _(i.e., Go types)_.
+`dbgo` generates a database consumer package containing optimized Go code and SQL queries for your database and domain models _(i.e., Go types)_.
 
 ## Why don't you use other database frameworks?
 
-`dbgo` generates optimized Go code and SQL queries for your database and gives you the option to use domain models as a source of truth.
-
-Other database frameworks generate generic Go code and SQL queries based on the database as a source of truth.
+`dbgo` gives you the option to use domain models as a source of truth for optimized code, while other database frameworks generate unoptimized code based on the database as a source of truth.
 
 **Here is an example of the difference between `dbgo` and other frameworks.**
 
@@ -19,11 +22,11 @@ Other database frameworks generate generic Go code and SQL queries based on the 
 Your workflow with `dbgo` involves defining Go types _(e.g., domain models)_ and connecting to an existing database to generate:
 1. a Repository Go package _(e.g., for a business domain)_ which transfers data from a datastore to your domain models.
 2. a Datastore Go package _(e.g., for a `psql` database)_ without unnecessary "data access objects" or "data transfer functionality" _to reduce CPU usage and memory allocations_.
-   1. Database Go models for Read (Select) operations which do not use reflection during runtime.
+   1. Database Go types for Read (Select) operations which do not use reflection during runtime.
    2. Database Driver Go code to call **C**reate (Insert), **R**ead (Select), **U**pdate, **D**elete operations in a single or batch statement.
-   3. Database Query Manager for SQL queries and Stored Procedures.
-   4. Database Query Developer to develop custom type-safe SQL statements using Go type database models.
-   5. Database Schema _(e.g., tables, views)_ Go type models.
+   3. Database Query Manager to manage your SQL queries and Stored Procedures.
+   4. Database Query Developer to develop custom type-safe SQL statements using Go type database models _(e.g., tables, views)_.
+   5. Database Query Generator to develop type-safe CRUD SQL statements using your database schema _(e.g., tables, views)_.
 
 **So, you can immediately use the domain type with the database once your Go types are defined and your database is set up.**
 
@@ -38,12 +41,12 @@ YOU WASTE TIME patching your repository on each database update using other data
 
 ## Table of Contents
 
-| Topic                                | Category                                                                                                                                                                                                                                             |
-| :----------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Using `dbgo`](#how-do-you-use-dbgo) |                                                                                                                                                                                                                                                      |  |
-| with a domain                        | [1. Define Go types](#step-1-define-go-types-domain-models), [2. Deploy Database](#step-2-deploy-database), [3. Map Domain to Database](#step-3-map-domain-fields-to-database)                                                                       |
-| with a database                      | [4. Configure setup file](#step-4-configure-the-setup-file), [5. Generate SQL](#step-5-generate-sql-statements-and-stored-procedures), [6. Generate Database Consumer](#generate-a-database-consumer-module-for-your-database-based-on-domain-types) |
-|                                      |
+| Topic                                | Category                                                                                                                                                                                                                                          |
+| :----------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Using `dbgo`](#how-do-you-use-dbgo) |                                                                                                                                                                                                                                                   |  |
+| with a domain                        | [1. Define Go types](#step-1-define-go-types-domain-models), [2. Deploy Database](#step-2-deploy-database), [3. Map Domain to Database](#step-3-map-domain-fields-to-database)                                                                    |
+| with a database                      | [4. Configure setup file](#step-4-configure-the-setup-file), [5. Generate SQL](#step-5-generate-sql-queries-and-stored-procedures), [6. Generate Database Consumer](#generate-a-database-consumer-module-for-your-database-based-on-domain-types) |
+| [License](#what-is-the-license)      | [What can I do?](#what-can-you-do-with-this-license)                                                                                                                                                                                              |
 
 ## How do you use dbgo?
 
@@ -73,15 +76,13 @@ You must connect to an existing database to run `dbgo`.
 
 Here is the database diagram for the database used in this example.
 
-```
-TODO: add database diagram
-```
+![Database Diagram showing an Accounts and Users table.](/examples/main/dbgo-database-diagram-min.PNG)
 
 ### Step 3. Map Domain Fields to Database
 
 Map the domain's fields to database schema _(e.g, table)_ fields.
 
-`./domain/domain.go`
+[`./domain/domain.go`](/examples/)
 
 ```go
 // Account represents a user's account.
@@ -97,7 +98,7 @@ type Account struct {
 
 You set up `dbgo` with a YAML file.
 
-`setup.yml`
+[`setup.yml`](/examples/main/setup.yml)
 
 ```yml
 generated:
@@ -131,7 +132,7 @@ custom:
   option: The possibilities are endless.
 ```
 
-### Step 5. Generate SQL statements and stored procedures
+### Step 5. Generate SQL queries and stored procedures
 
 Use the `dbgo query` manager to save customized type-safe SQL statements or generate them.
 
@@ -153,11 +154,11 @@ go install github.com/switchupcb/dbgo@latest
 
 **4\)** Run the executable with the following options to add SQL to the queries directory.
 
-| Command Line                                | Description                                                                                                                                                                                                                           |
-| :------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `db query gen -y path/to/yml`             | Generates SQL statements for Read (Select) operations and adds Stored Procedures for Create (Insert), Update, Delete operations to the database.                                                                                      |
+| Command Line                              | Description                                                                                                                                                                                                                            |
+| :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `db query gen -y path/to/yml`             | Generates SQL queries for Read (Select) operations and Create (Insert), Update, Delete operations.                                                                                                                                     |
 | `db query template <name> -y path/to/yml` | Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`. |
-| `db query save <name> -y path/to/yml`      | Saves an SQL file _(with the same name as the template \[e.g., `name.sql`\])_ containing an SQL statement _(returned from the `SQL()` function in `name.go`)_ to the queries directory.                                                |
+| `db query save <name> -y path/to/yml`     | Saves an SQL file _(with the same name as the template \[e.g., `name.sql`\])_ containing an SQL statement _(returned from the `SQL()` function in `name.go`)_ to the queries directory.                                                |
 
 _Here are additional usage notes._
 - _`-y`, `--yml`: The path to the YML file must be specified in reference to the current working directory._
@@ -167,7 +168,9 @@ _Here are additional usage notes._
 
 #### How do you develop type-safe SQL?
 
-Running `db query template <name> -y path/to/yml` adds a `name.go` file with database models as Go types. Use these Go types with [`jet`](https://github.com/go-jet/jet) to return an `stmt.Sql()` from `SQL()`, which cannot be interpreted unless the Go code referencing struct fields can be compiled.
+Running `db query template <name> -y path/to/yml` adds a `name.go` file with database models as Go types to your queries directory. 
+
+Use these Go types with [`jet`](https://github.com/go-jet/jet) to return an `stmt.Sql()` from `SQL()`, which cannot be interpreted unless the Go code referencing struct fields can be compiled.
 
 _Read <a href="https://github.com/go-jet/jet#how-quickly-bugs-are-found" target="_blank">"How quickly bugs are found"</a> for more information._
 
@@ -188,3 +191,15 @@ dbgo gen -y path/to/yml
 _The path to the YML file must be specified in reference to the current working directory._
 
 **You can view the output of this example [here](/examples/main/).**
+
+## What is the License?
+
+`dbgo` uses an [MIT License](https://opensource.org/license/mit).
+
+### What can you do with this license?
+
+Code generated by `dbgo` can be used without restriction (including proprietary and commercial usage). However, modifications to the `dbgo` Software Source Code or implementing `dbgo` in a larger work programmatically requires you to "include the copyright notice and permission notice in the license in all copies or substantial portions of the Software".
+
+## Contributing
+
+You can contribute to this repository by viewing the [Project Structure, Code Specifications, CI/CD, and Roadmap](/CONTRIBUTING.md).

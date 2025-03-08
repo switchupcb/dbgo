@@ -6,6 +6,7 @@ generated:
 
         # database connection and schema (public by default).
         db: 
+            # connection string or environment variable (e.g., `$VAR`)
             connection: $DATABASE_CONNECTION_STRING
             schema: public
 

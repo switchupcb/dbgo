@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	subcommand_description_gen = "Generates SQL statements for Read (Select) operations and adds Stored Procedures for Create (Insert), Update, Delete operations to the database."
+	subcommand_description_gen = "Generates SQL queries for Read (Select) operations and Create (Insert), Update, Delete operations."
 )
 
 // cmdQueryGen represents the fgen command
