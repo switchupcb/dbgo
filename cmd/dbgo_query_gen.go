@@ -13,7 +13,7 @@ const (
 	subcommand_description_gen = "Generates SQL queries for Read (Select) operations and Create (Insert), Update, Delete operations."
 )
 
-// cmdQueryGen represents the fgen command
+// cmdQueryGen represents the dbgo query gen command.
 var cmdQueryGen = &cobra.Command{
 	Use:   "gen",
 	Short: "Generates SQL statements from your database.",

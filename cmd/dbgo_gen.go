@@ -9,7 +9,7 @@ import (
 	gen "github.com/switchupcb/dbgo/cmd/dbgo_gen"
 )
 
-// cmdGen represents the gen command
+// cmdGen represents the dbgo gen command.
 var cmdGen = &cobra.Command{
 	Use:   "gen",
 	Short: "Use `dbgo gen --yml path/to/yml` to generate a database consumer package.",

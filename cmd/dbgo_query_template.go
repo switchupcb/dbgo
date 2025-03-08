@@ -13,7 +13,7 @@ const (
 	subcommand_description_template = "Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`."
 )
 
-// templateCmd represents the template command
+// templateCmd represents the dbgo query template command.
 var templateCmd = &cobra.Command{
 	Use:   "template",
 	Short: "Add an SQL generator template to your queries directory.",

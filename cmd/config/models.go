@@ -3,7 +3,7 @@ package config
 
 // YML represents the first level of the YML file.
 type YML struct {
-	Abspath   string
+	abspath   string
 	Generated Generated              `yaml:"generated"`
 	Options   map[string]interface{} `yaml:"custom"`
 }

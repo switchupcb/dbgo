@@ -20,7 +20,7 @@ const (
 // Gen runs dbgo query programmatically using the given YML.
 func Gen(yml config.YML) (string, error) {
 	if yml.Generated.Input.DB.Connection == "" {
-		return "", fmt.Errorf("you must specify a database connection ('dbc') in the .yml configuration file")
+		return "", errors.New(err_database_unspecified)
 	}
 
 	if yml.Generated.Input.DB.Connection[0] == databaseConnectionEnvironmentVariableSymbol {
@@ -46,7 +46,7 @@ func Gen(yml config.YML) (string, error) {
 	}
 
 	// Add schema file.
-	pgdump := exec.Command("pg_dump",
+	pgdump := exec.Command("pg_dump", //nolint:gosec // disable G204
 		yml.Generated.Input.DB.Connection,
 		"--schema-only",
 		"-f", filepath.Join(generatedQueriesFilepath, generatedQueriesSchemaSQLFilename),
@@ -69,6 +69,7 @@ func Gen(yml config.YML) (string, error) {
 
 	// Run the CRUD Generator.
 	sqlc := exec.Command("sqlc", "generate", "-f", file_path_sqlc_json)
+
 	std, err = sqlc.CombinedOutput()
 	if err != nil {
 		return "", fmt.Errorf("write CRUD SQL: sqlc generate: %q: %w", string(std), err)
@@ -94,7 +95,7 @@ func Gen(yml config.YML) (string, error) {
 		colon_count := 0
 
 	parseName:
-		for i := range len(query) {
+		for i := range query {
 			switch colon_count {
 			case 0:
 				if query[i] == colon {
@@ -108,12 +109,12 @@ func Gen(yml config.YML) (string, error) {
 				default:
 					name = append(name, query[i])
 				}
-			case 2:
+			case 2: //nolint:mnd
 				break parseName
 			}
 		}
 
-		if colon_count != 2 {
+		if colon_count != 2 { //nolint:mnd
 			return "", fmt.Errorf("encountered invalid CRUD SQL at statement %d\n%q", i, string(srcQueries[i]))
 		}
 

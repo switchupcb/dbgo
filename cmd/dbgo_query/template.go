@@ -1,6 +1,7 @@
 package query
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -39,7 +40,7 @@ func SQL() (string, error) {
 // Template runs dbgo query template programmatically using the given filepath and YML.
 func Template(abspath string, yml config.YML) (string, error) {
 	if yml.Generated.Input.DB.Connection == "" {
-		return "", fmt.Errorf("you must specify a database connection ('dbc') in the .yml configuration file")
+		return "", errors.New(err_database_unspecified)
 	}
 
 	if yml.Generated.Input.DB.Connection[0] == databaseConnectionEnvironmentVariableSymbol {
@@ -114,7 +115,7 @@ func Template(abspath string, yml config.YML) (string, error) {
 	}
 
 	merger := NewMerger(template_name)
-	for i := range len(file_content_schemas) {
+	for i := range file_content_schemas {
 		if err := merger.parseFile("", file_content_schemas[i]); err != nil {
 			return "", fmt.Errorf("merge: file_content_schema: %w\n\n%v", err, string(file_content_schemas[i]))
 		}
@@ -169,7 +170,8 @@ func countDirFiles(dirpath string) (int, error) {
 	}
 
 	var file_count int
-	for i := range len(list) {
+
+	for i := range list {
 		file_info, err := os.Stat(filepath.Join(dirpath, list[i]))
 		if err != nil {
 			return 0, err

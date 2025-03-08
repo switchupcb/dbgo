@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// cmdQuery represents the query command
+// cmdQuery represents the dbgo query command.
 var cmdQuery = &cobra.Command{
 	Use:   "query",
 	Short: "Use the `dbgo query` manager to manage SQL statements.",

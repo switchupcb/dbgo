@@ -1,0 +1,44 @@
+run:
+  timeout: 5m
+  tests: false
+
+linters:
+  enable-all: true
+  disable:
+    - cyclop # complexity
+    - depguard
+    - dupl # cobra
+    - gofumpt
+    - exhaustruct
+    - gochecknoinits # cobra
+    - gochecknoglobals # cobra
+    - gocognit # complexity
+    - funlen # complexity
+    - lll
+    - varnamelen
+
+    - forbidigo # todo
+    - wrapcheck # todo
+    - err113 # todo
+
+    - tenv # deprecated
+
+  fast: false
+linters-settings:
+  revive:
+    rules:
+      - name: var-naming  # todo
+        disabled: true
+
+  stylecheck:
+    checks:
+      - "-ST1003" # todo
+
+issues:
+  exclude-files:
+    - extract.*
+    - cmd/dbgo_gen/run.go
+    - cmd/dbgo_query/template_merger.go
+    - cmd/dbgo_query/template_jet.go
+
+ 

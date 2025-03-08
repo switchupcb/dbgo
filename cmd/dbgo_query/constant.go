@@ -11,4 +11,6 @@ const (
 	newline    = '\n'
 	colon      = ':'
 	whitespace = ' '
+
+	err_database_unspecified = "you must specify a database connection ('dbc') in the .yml configuration file"
 )

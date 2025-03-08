@@ -13,7 +13,7 @@ const (
 	subcommand_description_save = "Saves an SQL file (with the same name as the template [e.g., `name.sql`]) containing an SQL statement (returned from the `SQL()` function in `name.go`) to the queries directory."
 )
 
-// cmdSave represents the save command
+// cmdSave represents the dbgo query save command.
 var cmdSave = &cobra.Command{
 	Use:   "save",
 	Short: "Save a type-safe SQL file to your queries directory.",
