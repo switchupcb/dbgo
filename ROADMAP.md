@@ -4,6 +4,8 @@ Here is the feature release schedule for this software.
 
 ## Implemented
 
+You can use `dbgo` with a PostreSQL database.
+
 You can use the `dbgo query` manager to manage your SQL statements or generate them.
 - `dbgo query gen`
 - `dbgo query template`
@@ -34,3 +36,7 @@ Structural optimizations provided by the program are already implemented by Marc
 ## Future: Stored Procedures
 
 You can use `dbgo` to add Stored Procedures to your database for Create (Insert), Read, and Update operations.
+
+## Future: Database Support
+
+You can use `dbgo` with SQLITE3 and MySQL.
