@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"github.com/switchupcb/dbgo/cmd/constant"
 	query "github.com/switchupcb/dbgo/cmd/dbgo_query"
 )
 
@@ -20,21 +21,21 @@ var cmdSave = &cobra.Command{
 	Long:  subcommand_description_save,
 	Run: func(cmd *cobra.Command, args []string) {
 		// parse the "--yml" flag.
-		yml, err := parseYML()
+		yml, err := parseFlagYML()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
-			os.Exit(1)
+			os.Exit(constant.OSExitCodeError)
 		}
 
 		// run the generator for each template.
 		if len(args) == 0 {
-			queriesGoTemplatesDir := filepath.Join(yml.Generated.Input.Queries, queriesGoTemplatesDirname)
+			queriesGoTemplatesDir := filepath.Join(yml.Generated.Input.Queries, constant.DirnameQueriesTemplates)
 			files, err := os.ReadDir(queriesGoTemplatesDir)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
-				os.Exit(1)
+				os.Exit(constant.OSExitCodeError)
 			}
 
 			for i := range files {

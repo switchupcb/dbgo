@@ -13,7 +13,7 @@ _NOTE: You can read the [roadmap](/ROADMAP.md) for a list of implemented feature
 
 ## Why don't you use other database frameworks?
 
-`dbgo` gives you the option to use domain models as a source of truth for optimized code, while other database frameworks generate unoptimized code based on the database as a source of truth.
+`dbgo` lets you use domain models as a source of truth for optimized code, while other database frameworks generate unoptimized code based on the database as a source of truth.
 
 **Here is an example of the difference between `dbgo` and other frameworks.**
 
@@ -136,31 +136,28 @@ custom:
 
 Use the `dbgo query` manager to save customized type-safe SQL statements or generate them.
 
-**1\)** Install the command line tool: `xstruct`.
-```
-go install github.com/switchupcb/xstruct@latest
-```
-
-**2\)** Install the command line tool: `sqlc`.
+**1\)** Install the command line tool: `sqlc`.
 ```
 go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 ```
 
-**3\)** Install the command line tool: `dbgo`.
+**2\)** Install the command line tool: `dbgo`.
 
 ```
 go install github.com/switchupcb/dbgo@latest
 ```
 
-**4\)** Run the executable with the following options to add SQL to the queries directory.
+**3\)** Run the executable with the following options to add SQL to the queries directory.
 
 | Command Line                              | Description                                                                                                                                                                                                                            |
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `db query schema -y path/to/yml`          | Generates a `schema.sql` and `schema.go` file representing your database in the queries directory.                                                                                                                                     |
 | `db query gen -y path/to/yml`             | Generates SQL queries for Read (Select) operations and Create (Insert), Update, Delete operations.                                                                                                                                     |
 | `db query template <name> -y path/to/yml` | Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`. |
 | `db query save <name> -y path/to/yml`     | Saves an SQL file _(with the same name as the template \[e.g., `name.sql`\])_ containing an SQL statement _(returned from the `SQL()` function in `name.go`)_ to the queries directory.                                                |
 
 _Here are additional usage notes._
+
 - _`-y`, `--yml`: The path to the YML file must be specified in reference to the current working directory._
 - _`db query template`: Every template is updated when this command is executed without a specified template._
 - _`db query save`: Every template is saved when this command is executed without a specified template._

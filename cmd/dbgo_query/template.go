@@ -5,20 +5,18 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	_ "github.com/lib/pq"
 	"github.com/switchupcb/dbgo/cmd/config"
+	"github.com/switchupcb/dbgo/cmd/constant"
 	"github.com/switchupcb/jet/v2/generator/postgres"
 )
 
 const (
-	databaseConnectionEnvironmentVariableSymbol = '$'
+	dirnameJetGenerated = "go"
 
-	templateGoSchemaFilename = "schema.go"
-
-	file_content_static = `
+	interpretedFileContentStatic = `
 
 import . "github.com/switchupcb/jet/v2/postgres"
 
@@ -39,28 +37,27 @@ func SQL() (string, error) {
 
 // Template runs dbgo query template programmatically using the given filepath and YML.
 func Template(abspath string, yml config.YML) (string, error) {
-	if yml.Generated.Input.DB.Connection == "" {
-		return "", errors.New(err_database_unspecified)
-	}
+	var err error
 
-	if yml.Generated.Input.DB.Connection[0] == databaseConnectionEnvironmentVariableSymbol {
-		yml.Generated.Input.DB.Connection = os.Getenv(yml.Generated.Input.DB.Connection[1:])
+	yml.Generated.Input.DB.Connection, err = validatedDatabaseConnection(yml)
+	if err != nil {
+		return "", err
 	}
 
 	if yml.Generated.Input.DB.Schema == "" {
-		yml.Generated.Input.DB.Schema = "public"
+		yml.Generated.Input.DB.Schema = constant.DatabaseSchemaNameDefault
 	}
 
-	template_name := filepath.Base(abspath)
+	templateName := filepath.Base(abspath)
 
-	fmt.Printf("ADDING TEMPLATE %v to %v\n\n", template_name, abspath)
+	fmt.Printf("ADDING TEMPLATE %v to %v\n\n", templateName, abspath)
 
 	// Generate the database schema models as Go types.
 	sqlGoDirpath := filepath.Join(
-		yml.Generated.Input.Queries, // queries
-		queriesGoTemplatesDirname,   // templates
-		template_name,               // template (name)
-		sqlGoDir,                    // go
+		yml.Generated.Input.Queries,      // queries
+		constant.DirnameQueriesTemplates, // templates
+		templateName,                     // template (name)
+		dirnameJetGenerated,              // go
 	)
 
 	generatorTemplate := genTemplate()
@@ -70,15 +67,15 @@ func Template(abspath string, yml config.YML) (string, error) {
 		sqlGoDirpath,
 		generatorTemplate,
 	); err != nil {
-		return "", fmt.Errorf("%w", err)
+		return "", fmt.Errorf("jet: %w", err)
 	}
 
 	fmt.Println("Generated schema as models.")
 	fmt.Println()
 
 	// Merge generated files to a single schema.go file.
-	file_content_schemas := [][]byte{
-		[]byte("package " + template_name + "\n\n" + "import \"github.com/switchupcb/jet/v2/postgres\""),
+	fileContentSchemas := [][]byte{
+		[]byte("package " + templateName + "\n\n" + "import \"github.com/switchupcb/jet/v2/postgres\""),
 	}
 
 	if err := filepath.WalkDir(sqlGoDirpath, func(path string, d fs.DirEntry, err error) error {
@@ -87,26 +84,27 @@ func Template(abspath string, yml config.YML) (string, error) {
 		}
 
 		if d.IsDir() {
+			// Do not merge generated files from the model directory.
 			if filepath.Base(path) == "model" {
 				return nil
 			}
 
-			file_count, err := countDirFiles(path)
+			// Do not attempt to merge directories with 0 files.
+			fileCount, err := countDirFiles(path)
 			if err != nil {
 				return fmt.Errorf("directory file count: %w", err)
 			}
 
-			if file_count == 0 {
+			if fileCount == 0 {
 				return nil
 			}
 
-			xstruct := exec.Command("xstruct", "-d", path, "-p", template_name, "-f", "-g")
-			std, err := xstruct.CombinedOutput()
+			xstructOutput, err := xstruct(path, templateName)
 			if err != nil {
-				return fmt.Errorf("xstruct called from %q: %v", path, string(std))
+				return fmt.Errorf("xstruct called from %q: %w", path, err)
 			}
 
-			file_content_schemas = append(file_content_schemas, std)
+			fileContentSchemas = append(fileContentSchemas, xstructOutput)
 		}
 
 		return nil
@@ -114,20 +112,20 @@ func Template(abspath string, yml config.YML) (string, error) {
 		return "", fmt.Errorf("error flattening structs from generated SQL Go types: %w", err)
 	}
 
-	merger := NewMerger(template_name)
-	for i := range file_content_schemas {
-		if err := merger.parseFile("", file_content_schemas[i]); err != nil {
-			return "", fmt.Errorf("merge: file_content_schema: %w\n\n%v", err, string(file_content_schemas[i]))
+	merger := newMerger(templateName)
+	for i := range fileContentSchemas {
+		if err := merger.parseFile("", fileContentSchemas[i]); err != nil {
+			return "", fmt.Errorf("merge: file_content_schema: %w\n\n%v", err, string(fileContentSchemas[i]))
 		}
 	}
 
 	delete(merger.addedImports, "\"github.com/go-jet/jet/postgres\"")
 
 	templateSchemaFilepath := filepath.Join(
-		yml.Generated.Input.Queries, // queries
-		queriesGoTemplatesDirname,   // templates
-		template_name,               // template (name)
-		templateGoSchemaFilename,    // schema.go
+		yml.Generated.Input.Queries,       // queries
+		constant.DirnameQueriesTemplates,  // templates
+		templateName,                      // template (name)
+		constant.FilenameTemplateSchemaGo, // schema.go
 	)
 
 	if err := merger.WriteToFile(templateSchemaFilepath); err != nil {
@@ -139,40 +137,40 @@ func Template(abspath string, yml config.YML) (string, error) {
 	}
 
 	// Create the interpreted function file.
-	file_content := []byte("package " + template_name + file_content_static)
+	fileContent := []byte("package " + templateName + interpretedFileContentStatic)
 
 	templateFilepath := filepath.Join(
-		yml.Generated.Input.Queries, // queries
-		queriesGoTemplatesDirname,   // templates
-		template_name,               // template (name)
-		template_name+fileExtGo,     // template.go
+		yml.Generated.Input.Queries,      // queries
+		constant.DirnameQueriesTemplates, // templates
+		templateName,                     // template (name)
+		templateName+constant.FileExtGo,  // template.go
 	)
 
 	if _, err := os.Stat(templateFilepath); err == nil {
 
 	} else if errors.Is(err, os.ErrNotExist) {
-		if err := os.WriteFile(templateFilepath, file_content, writeFileMode); err != nil {
+		if err := os.WriteFile(templateFilepath, fileContent, constant.FileModeWrite); err != nil {
 			return "", fmt.Errorf("template: write: %w", err)
 		}
 	} else {
 		return "", fmt.Errorf("error checking for template file space: %w", err)
 	}
 
-	return fmt.Sprintf("ADDED TEMPLATE %q to %v", template_name, filepath.Dir(templateFilepath)), nil
+	return fmt.Sprintf("ADDED TEMPLATE %q to %v", templateName, filepath.Dir(templateFilepath)), nil
 }
 
 // countDirFiles counts the number of non-directory files in a directory.
 func countDirFiles(dirpath string) (int, error) {
 	file, err := os.Open(dirpath)
 	if err != nil {
-		return 0, err
+		return 0, err //nolint:wrapcheck
 	}
 
 	defer file.Close()
 
 	list, err := file.Readdirnames(-1)
 	if err != nil {
-		return 0, err
+		return 0, err //nolint:wrapcheck
 	}
 
 	var file_count int
@@ -180,7 +178,7 @@ func countDirFiles(dirpath string) (int, error) {
 	for i := range list {
 		file_info, err := os.Stat(filepath.Join(dirpath, list[i]))
 		if err != nil {
-			return 0, err
+			return 0, err //nolint:wrapcheck
 		}
 
 		if !file_info.IsDir() {

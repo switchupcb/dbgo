@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/switchupcb/dbgo/cmd/constant"
 )
 
 const (
@@ -31,11 +32,17 @@ var cmdDBGO = &cobra.Command{
 // called by main.main() once.
 func Execute() {
 	if err := cmdDBGO.Execute(); err != nil {
-		os.Exit(1)
+		os.Exit(constant.OSExitCodeError)
 	}
 }
 
 func init() {
 	// Persistent Flags work for this command and all subcommands.
-	cmdDBGO.PersistentFlags().StringVarP(ymlFlag, flag_yml_name, flag_yml_shorthand, "", flag_yml_usage)
+	cmdDBGO.PersistentFlags().StringVarP(
+		flagYML,
+		flagYMLName,
+		flagYMLShorthand,
+		"",
+		flagYMLUsage,
+	)
 }

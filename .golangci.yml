@@ -9,6 +9,7 @@ linters:
     - depguard
     - dupl # cobra
     - gofumpt
+    - err113
     - exhaustruct
     - gochecknoinits # cobra
     - gochecknoglobals # cobra
@@ -18,8 +19,6 @@ linters:
     - varnamelen
 
     - forbidigo # todo
-    - wrapcheck # todo
-    - err113 # todo
 
     - tenv # deprecated
 

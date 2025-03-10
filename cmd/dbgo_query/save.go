@@ -6,12 +6,13 @@ import (
 	"path/filepath"
 
 	"github.com/switchupcb/dbgo/cmd/config"
+	"github.com/switchupcb/dbgo/cmd/constant"
 )
 
 // Save runs dbgo query save programmatically using the given filepath and YML.
 func Save(abspath string, yml config.YML) (string, error) {
 	filename := filepath.Base(abspath)
-	sql_filename := filename + fileExtSQL
+	sql_filename := filename + constant.FileExtSQL
 	sql_filepath := filepath.Join(yml.Generated.Input.Queries, sql_filename)
 
 	fmt.Printf("SAVING QUERY %v from template at %v\n", sql_filename, abspath)
@@ -22,12 +23,12 @@ func Save(abspath string, yml config.YML) (string, error) {
 		return "", fmt.Errorf("interpreter: %w", err)
 	}
 
-	if sqlcode[0] == newline {
+	if sqlcode[0] == constant.Newline {
 		sqlcode = sqlcode[1:]
 	}
 
 	// write output to an sql file with the same name as the interpreted file.
-	if err := os.WriteFile(sql_filepath, []byte(sqlcode), writeFileMode); err != nil {
+	if err := os.WriteFile(sql_filepath, []byte(sqlcode), constant.FileModeWrite); err != nil {
 		return "", fmt.Errorf("error creating sql file: %w", err)
 	}
 

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/switchupcb/dbgo/cmd/constant"
 	query "github.com/switchupcb/dbgo/cmd/dbgo_query"
 )
 
@@ -24,15 +25,15 @@ var cmdQueryGen = &cobra.Command{
 			args_string := strings.Join(args, " ")
 			fmt.Fprintf(os.Stderr, "Unexpected arguments found: %q", args_string)
 
-			os.Exit(1)
+			os.Exit(constant.OSExitCodeError)
 		}
 
 		// parse the "--yml" flag.
-		yml, err := parseYML()
+		yml, err := parseFlagYML()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
-			os.Exit(1)
+			os.Exit(constant.OSExitCodeError)
 		}
 
 		// Run the generator.
@@ -40,7 +41,7 @@ var cmdQueryGen = &cobra.Command{
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
-			os.Exit(1)
+			os.Exit(constant.OSExitCodeError)
 		}
 
 		fmt.Println(output)

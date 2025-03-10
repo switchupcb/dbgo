@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/switchupcb/dbgo/cmd/constant"
 	"github.com/switchupcb/dbgo/cmd/dbgo_query/extract"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
@@ -37,11 +38,11 @@ func interpretFunction(dirpath string) (string, error) {
 	}
 
 	// load the source (in a specific order)
-	if _, err := i.EvalPath(filepath.Join(dirpath, templateGoSchemaFilename)); err != nil {
+	if _, err := i.EvalPath(filepath.Join(dirpath, constant.FilenameTemplateSchemaGo)); err != nil {
 		return "", fmt.Errorf("error compiling template schema.go file: %w", err)
 	}
 
-	if _, err := i.EvalPath(filepath.Join(dirpath, filepath.Base(dirpath)+fileExtGo)); err != nil {
+	if _, err := i.EvalPath(filepath.Join(dirpath, filepath.Base(dirpath)+constant.FileExtGo)); err != nil {
 		return "", fmt.Errorf("error compiling template.go file: %w", err)
 	}
 
