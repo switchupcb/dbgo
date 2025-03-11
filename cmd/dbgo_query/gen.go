@@ -9,79 +9,105 @@ import (
 	"path/filepath"
 
 	"github.com/switchupcb/dbgo/cmd/config"
+	"github.com/switchupcb/dbgo/cmd/constant"
 )
 
-const (
-	generatedQueriesDirname           = "dbgoquerygentemp"
-	generatedQueriesOutputDirname     = "output"
-	generatedQueriesSchemaSQLFilename = "schema.sql"
-)
-
-// Gen runs dbgo query programmatically using the given YML.
-func Gen(yml config.YML) (string, error) {
-	if yml.Generated.Input.DB.Connection == "" {
-		return "", errors.New(err_database_unspecified)
-	}
-
-	if yml.Generated.Input.DB.Connection[0] == databaseConnectionEnvironmentVariableSymbol {
-		yml.Generated.Input.DB.Connection = os.Getenv(yml.Generated.Input.DB.Connection[1:])
-	}
-
-	generatedQueriesFilepath := filepath.Join(
-		yml.Generated.Input.Queries, // queries
-		generatedQueriesDirname,     // generatedQueriesDirname
+// Gen runs dbgo query gen programmatically using the given YML.
+func Gen(yml config.YML) error {
+	filepathSchemaSQL := filepath.Join(
+		yml.Generated.Input.Queries,       // queries
+		constant.DirnameQueriesSchema,     // schema
+		constant.FilenameQueriesSchemaSQL, // schema.sql
 	)
 
-	if _, err := os.Stat(generatedQueriesFilepath); err == nil {
-		return "", fmt.Errorf("warning: directory at must be deleted: %q", generatedQueriesFilepath)
+	if _, err := os.Stat(filepathSchemaSQL); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return fmt.Errorf( //nolint:stylecheck // ST1005
+				`schema.sql was not found at %q
+	You can use 'db query schema' to regenerate a schema.sql file.
+	Then, run 'db query gen' again to generate CRUD SQL.`,
+				filepathSchemaSQL,
+			)
+		} else {
+			return fmt.Errorf("error checking .../queries/schema/schema.go file space: %w", err)
+		}
+	}
+
+	// dirpathGenerationSpace represents the directory used to contain files during generation.
+	//
+	// The dirpathGenerationSpace directory is used when the sqlc CRUD Generator project is created.
+	dirpathGenerationSpace := filepath.Join(
+		yml.Generated.Input.Queries, // queries
+		constant.DirnameTempQueriesGenerationSQL,
+	)
+
+	// Do not overwrite an existing directory from the user.
+	if _, err := os.Stat(dirpathGenerationSpace); err == nil {
+		return fmt.Errorf("directory at must be deleted: %q", dirpathGenerationSpace)
 	} else if errors.Is(err, os.ErrNotExist) {
 
 	} else {
-		return "", fmt.Errorf("error checking for directory space: %w", err)
+		return fmt.Errorf("error checking directory space: %w", err)
 	}
 
-	// Create an sqlc CRUD Generator project.
-	if err := os.MkdirAll(generatedQueriesFilepath, writeFileMode); err != nil {
-		return "", fmt.Errorf("mkdir all: %w", err)
-	}
-
-	// Add schema file.
-	pgdump := exec.Command("pg_dump", //nolint:gosec // disable G204
-		yml.Generated.Input.DB.Connection,
-		"--schema-only",
-		"-f", filepath.Join(generatedQueriesFilepath, generatedQueriesSchemaSQLFilename),
-	)
-
-	std, err := pgdump.CombinedOutput()
-	if err != nil {
-		return "", fmt.Errorf("write schema file: pg_dump: %q: %w", string(std), err)
+	// Create an sqlc CRUD Generator project directory.
+	if err := os.MkdirAll(dirpathGenerationSpace, constant.FileModeWrite); err != nil {
+		return fmt.Errorf("mkdir all: %w", err)
 	}
 
 	// Add static files.
-	if err := os.WriteFile(filepath.Join(generatedQueriesFilepath, file_name_dummy_sql), []byte(file_content_dummy_sql), writeFileMode); err != nil {
-		return "", fmt.Errorf("write dummy file: %w", err)
+	//
+	// placeholder.sql
+	if err := os.WriteFile(
+		filepath.Join(
+			dirpathGenerationSpace,
+			filenamePlaceholderSQL,
+		),
+		[]byte(fileContentPlaceholderSQL),
+		constant.FileModeWrite,
+	); err != nil {
+		return fmt.Errorf("write placeholder file: %w", err)
 	}
 
-	file_path_sqlc_json := filepath.Join(generatedQueriesFilepath, file_name_sqlc_json)
-	if err := os.WriteFile(file_path_sqlc_json, []byte(file_content_sqlc_json), writeFileMode); err != nil {
-		return "", fmt.Errorf("write config file: %w", err)
+	// crud.json
+	relativeSchemaPath, err := filepath.Rel(dirpathGenerationSpace, filepathSchemaSQL)
+	if err != nil {
+		return fmt.Errorf("write config file: relative pathfinder: %w", err)
+	}
+
+	filepathSQLCJSON := filepath.Join(
+		dirpathGenerationSpace,
+		filenameSQLCJSON,
+	)
+
+	if err := os.WriteFile(
+		filepathSQLCJSON,
+		[]byte(fileContentSQLCJSON(relativeSchemaPath)),
+		constant.FileModeWrite,
+	); err != nil {
+		return fmt.Errorf("write config file: %w", err)
 	}
 
 	// Run the CRUD Generator.
-	sqlc := exec.Command("sqlc", "generate", "-f", file_path_sqlc_json)
-
-	std, err = sqlc.CombinedOutput()
-	if err != nil {
-		return "", fmt.Errorf("write CRUD SQL: sqlc generate: %q: %w", string(std), err)
+	sqlc := exec.Command("sqlc", "generate", "-f", filepathSQLCJSON)
+	std, err := sqlc.CombinedOutput()
+	if err != nil { //nolint:wsl
+		return fmt.Errorf("write CRUD SQL: sqlc generate: %q: %w", string(std), err)
 	}
 
 	// Output the CRUD SQL to the queries directory.
-	src, err := os.ReadFile(filepath.Join(generatedQueriesFilepath, generatedQueriesOutputDirname, file_name_dummy_sql))
+	src, err := os.ReadFile(
+		filepath.Join(
+			dirpathGenerationSpace,
+			dirnameGeneratedQueriesOutput,
+			filenameGeneratedQueriesSQL,
+		),
+	)
 	if err != nil {
-		return "", fmt.Errorf("read CRUD SQL: %w", err)
+		return fmt.Errorf("read CRUD SQL: %w", err)
 	}
 
-	srcQueries := bytes.Split(src, []byte{newline, newline})
+	srcQueries := bytes.Split(src, []byte{constant.Newline, constant.Newline})
 	for i := range srcQueries {
 		query := srcQueries[i]
 
@@ -92,20 +118,20 @@ func Gen(yml config.YML) (string, error) {
 		// name represents the query name (e.g., `InsertUser` in `-- name: InsertUser :one`)
 		var name []byte
 
-		colon_count := 0
+		colonCount := 0
 
 	parseName:
 		for i := range query {
-			switch colon_count {
+			switch colonCount {
 			case 0:
-				if query[i] == colon {
-					colon_count++
+				if query[i] == constant.Colon {
+					colonCount++
 				}
 			case 1:
 				switch query[i] {
-				case whitespace:
-				case colon:
-					colon_count++
+				case constant.Whitespace:
+				case constant.Colon:
+					colonCount++
 				default:
 					name = append(name, query[i])
 				}
@@ -114,18 +140,18 @@ func Gen(yml config.YML) (string, error) {
 			}
 		}
 
-		if colon_count != 2 { //nolint:mnd
-			return "", fmt.Errorf("encountered invalid CRUD SQL at statement %d\n%q", i, string(srcQueries[i]))
+		if colonCount != 2 { //nolint:mnd
+			return fmt.Errorf("encountered invalid CRUD SQL at statement %d\n%q", i, string(srcQueries[i]))
 		}
 
-		if err := os.WriteFile(filepath.Join(yml.Generated.Input.Queries, string(name)+fileExtSQL), query, writeFileMode); err != nil {
-			return "", fmt.Errorf("write CRUD SQL FILE at statement %d\n%q", i, string(query))
+		if err := os.WriteFile(filepath.Join(yml.Generated.Input.Queries, string(name)+constant.FileExtSQL), query, constant.FileModeWrite); err != nil {
+			return fmt.Errorf("write CRUD SQL FILE at statement %d\n%q", i, string(query))
 		}
 	}
 
-	if err := os.RemoveAll(generatedQueriesFilepath); err != nil {
-		return "", fmt.Errorf("clean: %w", err)
+	if err := os.RemoveAll(dirpathGenerationSpace); err != nil {
+		return fmt.Errorf("clean: %w", err)
 	}
 
-	return fmt.Sprintf("Generated CRUD SQL files at %q", yml.Generated.Input.Queries), nil
+	return nil
 }

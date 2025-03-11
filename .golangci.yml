@@ -9,6 +9,7 @@ linters:
     - depguard
     - dupl # cobra
     - gofumpt
+    - err113
     - exhaustruct
     - gochecknoinits # cobra
     - gochecknoglobals # cobra
@@ -18,8 +19,6 @@ linters:
     - varnamelen
 
     - forbidigo # todo
-    - wrapcheck # todo
-    - err113 # todo
 
     - tenv # deprecated
 
@@ -27,18 +26,15 @@ linters:
 linters-settings:
   revive:
     rules:
-      - name: var-naming  # todo
-        disabled: true
-
-  stylecheck:
-    checks:
-      - "-ST1003" # todo
+      - name: unused-parameter
+        arguments:
+          - allowRegex: "cmd||args"
 
 issues:
   exclude-files:
     - extract.*
+    - constant/func.go
     - cmd/dbgo_gen/run.go
-    - cmd/dbgo_query/template_merger.go
-    - cmd/dbgo_query/template_jet.go
-
- 
+    - cmd/dbgo_query/schema_merger.go
+    - cmd/dbgo_query/schema_jet.go
+    - cmd/dbgo_query/schema_xstruct.go

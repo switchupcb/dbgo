@@ -6,7 +6,12 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/switchupcb/dbgo/cmd/constant"
 	gen "github.com/switchupcb/dbgo/cmd/dbgo_gen"
+)
+
+var (
+	cmdCombinedFlag = new(bool)
 )
 
 // cmdGen represents the dbgo gen command.
@@ -17,36 +22,40 @@ var cmdGen = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// check for unexpected arguments
 		if len(args) != 0 {
-			args_string := strings.Join(args, " ")
-			fmt.Fprintf(os.Stderr, "Unexpected arguments found: %q", args_string)
+			argsString := strings.Join(args, " ")
 
-			if args_string == cmdQuery.Use {
+			fmt.Fprintf(os.Stderr, "Unexpected arguments found: %q", argsString)
+
+			if argsString == cmdQuery.Use {
 				fmt.Printf("\n\nDid you mean dbgo %v gen?", cmdQuery.Use)
 			}
 
-			os.Exit(1)
+			os.Exit(constant.OSExitCodeError)
 		}
 
 		// parse the "--yml" flag.
-		yml, err := parseYML()
+		yml, err := parseFlagYML()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
-			os.Exit(1)
+			os.Exit(constant.OSExitCodeError)
 		}
 
 		// Run the generator.
-		output, err := gen.Run(*yml)
-		if err != nil {
+		fmt.Println("Generating Go code based on SQL statements.")
+
+		if err := gen.Gen(*yml, *cmdCombinedFlag); err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
-			os.Exit(1)
+			os.Exit(constant.OSExitCodeError)
 		}
 
-		fmt.Println(output)
+		fmt.Println("\nGenerated Go code based on SQL statements.")
 	},
 }
 
 func init() {
 	cmdDBGO.AddCommand(cmdGen)
+
+	cmdCombinedFlag = cmdGen.Flags().BoolP("keep", "k", false, "Use --keep to keep a copy of the generated `combined.sql` file in the queries directory.")
 }

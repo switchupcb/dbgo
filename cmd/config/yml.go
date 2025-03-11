@@ -13,18 +13,18 @@ import (
 func LoadYML(relativepath string) (*YML, error) {
 	file, err := os.ReadFile(relativepath)
 	if err != nil {
-		return nil, fmt.Errorf("the specified .yml filepath doesn't exist: %v\n%w", relativepath, err)
+		return nil, fmt.Errorf("yml read: %w", err)
 	}
 
 	yml := new(YML)
 	if err := yaml.Unmarshal(file, yml); err != nil {
-		return nil, fmt.Errorf("error occurred unmarshalling the .yml file\n%w", err)
+		return nil, fmt.Errorf("yml unmarshal: %w", err)
 	}
 
 	// determine the actual filepath of the setup file.
 	absloadpath, err := filepath.Abs(relativepath)
 	if err != nil {
-		return nil, fmt.Errorf("error occurred while determining the absolute file path of the setup file\n%v", relativepath)
+		return nil, fmt.Errorf("error determining the absolute file path of the setup file: %q\n%w", relativepath, err)
 	}
 
 	yml.abspath = absloadpath

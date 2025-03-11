@@ -31,7 +31,7 @@ import (
 	"sort"
 )
 
-type Merger struct {
+type merger struct {
 	tree         *ast.File
 	addedImports map[string]ast.Spec
 	addedConsts  map[string]ast.Spec
@@ -41,8 +41,8 @@ type Merger struct {
 	specialFunc  map[string]bool
 }
 
-func NewMerger(pkg string) *Merger {
-	merger := &Merger{
+func newMerger(pkg string) *merger {
+	merger := &merger{
 		tree: &ast.File{
 			Name: ast.NewIdent(pkg),
 		},
@@ -57,7 +57,7 @@ func NewMerger(pkg string) *Merger {
 	return merger
 }
 
-func (m *Merger) parseFile(path string, src any) error {
+func (m *merger) parseFile(path string, src any) error {
 	fset := token.NewFileSet()
 
 	file, err := parser.ParseFile(fset, path, src, 0)
@@ -90,7 +90,7 @@ func (m *Merger) parseFile(path string, src any) error {
 	return nil
 }
 
-func (m *Merger) parseGenDecl(decl *ast.GenDecl) {
+func (m *merger) parseGenDecl(decl *ast.GenDecl) {
 	switch decl.Tok {
 	case token.IMPORT:
 		for _, spec := range decl.Specs {
@@ -123,7 +123,7 @@ func (m *Merger) parseGenDecl(decl *ast.GenDecl) {
 	}
 }
 
-func (m *Merger) buildGenDecl() {
+func (m *merger) buildGenDecl() {
 	var specs []ast.Spec
 
 	specs = make([]ast.Spec, 0, len(m.addedImports))
@@ -171,7 +171,7 @@ func (m *Merger) buildGenDecl() {
 	}
 }
 
-func (m *Merger) sortAddedFuncs() []*ast.FuncDecl {
+func (m *merger) sortAddedFuncs() []*ast.FuncDecl {
 	keys := make([]string, 0, len(m.addedFunc))
 	for k := range m.addedFunc {
 		if _, ok := m.specialFunc[k]; ok {
@@ -197,7 +197,7 @@ func (m *Merger) sortAddedFuncs() []*ast.FuncDecl {
 	return sortedFuncs
 }
 
-func (m *Merger) WriteToFile(sourceName string) error {
+func (m *merger) WriteToFile(sourceName string) error {
 	source, err := os.Create(sourceName)
 	if err != nil {
 		return err

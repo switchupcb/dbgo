@@ -4,18 +4,22 @@ Here is the feature release schedule for this software.
 
 ## Implemented
 
+You can use `dbgo` with a PostreSQL database.
+
 You can use the `dbgo query` manager to manage your SQL statements or generate them.
 - `dbgo query gen`
 - `dbgo query template`
 - `dbgo query save`
-
-## March 10, 2025: `dbgo gen` (without domain)
-
+  
 You can use `dbgo gen` to generate Database Driver Go code which calls your SQL queries based on the database as a single source of truth.
 
 ## March 17, 2025: `dbgo gen` (with domain)
 
 You can use `dbgo gen` to generate Database Driver Go code which calls your SQL queries based on the domain as a single source of truth.
+
+You can place a `_dbgo.sql` file in your queries directory to generate Go code without an SQL file combination operation when `dbgo gen` is called.
+
+You can use options to only generate a `combined.SQL` file (currently output from the implemented `--keep` option) or only generate Database Driver Go code (from the `_dbgo.sql` file).
 
 ## March 24, 2025: `dbgo gen` (with .go templates)
 
@@ -34,3 +38,11 @@ Structural optimizations provided by the program are already implemented by Marc
 ## Future: Stored Procedures
 
 You can use `dbgo` to add Stored Procedures to your database for Create (Insert), Read, and Update operations.
+
+## Future: Automatic sqlc Query Annotation Developer
+
+You can use a customizable [sqlc Query Annotation](https://docs.sqlc.dev/en/stable/reference/query-annotations.html) developer to automatically add query annotations to your `dbgo gen` SQL file before Go code generation occurs. 
+
+## Future: Database Support
+
+You can use `dbgo` with SQLITE3 and MySQL.

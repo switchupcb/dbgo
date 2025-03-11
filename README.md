@@ -13,7 +13,7 @@ _NOTE: You can read the [roadmap](/ROADMAP.md) for a list of implemented feature
 
 ## Why don't you use other database frameworks?
 
-`dbgo` gives you the option to use domain models as a source of truth for optimized code, while other database frameworks generate unoptimized code based on the database as a source of truth.
+`dbgo` lets you use domain models as a source of truth for optimized code, while other database frameworks generate unoptimized code based on the database as a source of truth.
 
 **Here is an example of the difference between `dbgo` and other frameworks.**
 
@@ -136,43 +136,42 @@ custom:
 
 Use the `dbgo query` manager to save customized type-safe SQL statements or generate them.
 
-**1\)** Install the command line tool: `xstruct`.
-```
-go install github.com/switchupcb/xstruct@latest
-```
-
-**2\)** Install the command line tool: `sqlc`.
+**1\)** Install the command line tool: `sqlc`.
 ```
 go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 ```
 
-**3\)** Install the command line tool: `dbgo`.
+**2\)** Install the command line tool: `dbgo`.
 
 ```
 go install github.com/switchupcb/dbgo@latest
 ```
 
-**4\)** Run the executable with the following options to add SQL to the queries directory.
+**3\)** Run the executable with the following options to add SQL to the queries directory.
 
 | Command Line                              | Description                                                                                                                                                                                                                            |
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `db query schema -y path/to/yml`          | Generates a `schema.sql` and `schema.go` file representing your database in the queries directory.                                                                                                                                     |
 | `db query gen -y path/to/yml`             | Generates SQL queries for Read (Select) operations and Create (Insert), Update, Delete operations.                                                                                                                                     |
 | `db query template <name> -y path/to/yml` | Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`. |
 | `db query save <name> -y path/to/yml`     | Saves an SQL file _(with the same name as the template \[e.g., `name.sql`\])_ containing an SQL statement _(returned from the `SQL()` function in `name.go`)_ to the queries directory.                                                |
 
-_Here are additional usage notes._
+_Here are additional command usage notes._
+
 - _`-y`, `--yml`: The path to the YML file must be specified in reference to the current working directory._
 - _`db query template`: Every template is updated when this command is executed without a specified template._
 - _`db query save`: Every template is saved when this command is executed without a specified template._
-- _`db query save`: You are not required to initialize a `go.mod` file to run templates, but using `go get github.com/switchupcb/jet/v2@dbgo` in a `go.mod` related to the template files helps you identify compiler errors in your template files._
 
 #### How do you develop type-safe SQL?
 
-Running `db query template <name> -y path/to/yml` adds a `name.go` file with database models as Go types to your queries directory. 
+Running `db query template <name> -y path/to/yml` adds a `name.go` file with database models as Go types to your queries directory: You can use these Go types with [`jet`](https://github.com/go-jet/jet) to return an `stmt.Sql()` from `SQL()`, which cannot be interpreted unless the Go code referencing struct fields can be compiled.
 
-Use these Go types with [`jet`](https://github.com/go-jet/jet) to return an `stmt.Sql()` from `SQL()`, which cannot be interpreted unless the Go code referencing struct fields can be compiled.
+_Read <a href="https://github.com/go-jet/jet#how-quickly-bugs-are-found" target="_blank">"How quickly bugs are found"</a> for more information about writing type-safe SQL with Go._
 
-_Read <a href="https://github.com/go-jet/jet#how-quickly-bugs-are-found" target="_blank">"How quickly bugs are found"</a> for more information._
+You should consider these interpreter usage notes while using templates.
+-  You do not have to use `jet` to generate SQL programmatically.
+-  You are not required to initialize a `go.mod` file to run templates, but using `go get github.com/switchupcb/jet/v2@dbgo` in a `go.mod` related to the template files helps you identify compiler errors in your template files while using `jet`.
+-  `db query save <name>` interprets `schema.go` before `name.go`. So, do not reference declarations from `name.go` in `schema.go`.
 
 ### Step 6. Generate the database consumer package
 
@@ -194,11 +193,18 @@ _The path to the YML file must be specified in reference to the current working 
 
 ## What is the License?
 
-`dbgo` uses an [MIT License](https://opensource.org/license/mit).
+`dbgo` uses a [AGPLv3 License](https://www.gnu.org/licenses/agpl-3.0.en.html).
+
 
 ### What can you do with this license?
 
-Code generated by `dbgo` can be used without restriction (including proprietary and commercial usage). However, modifications to the `dbgo` Software Source Code or implementing `dbgo` in a larger work programmatically requires you to "include the copyright notice and permission notice in the license in all copies or substantial portions of the Software".
+Code generated by `dbgo` can be used without restriction (including proprietary and commercial usage). However, modifications to the `dbgo` Software Source Code or implementing `dbgo` in a larger work programmatically requires you to to [adhere to the AGPLv3 License](https://www.gnu.org/licenses/gpl-faq.html).
+
+### What is a license exception?
+
+A license exception lets you modify and use `dbgo` **without restriction**. 
+
+You can receive a license exception for `dbgo` by contacting SwitchUpCB using the [`dbgo` License Exception Inquiry Form](https://switchupcb.com/dbgo-license-exception/).
 
 ## Contributing
 

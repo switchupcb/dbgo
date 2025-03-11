@@ -3,22 +3,16 @@ package query
 import (
 	"errors"
 	"fmt"
-	"io/fs"
 	"os"
-	"os/exec"
 	"path/filepath"
 
-	_ "github.com/lib/pq"
 	"github.com/switchupcb/dbgo/cmd/config"
-	"github.com/switchupcb/jet/v2/generator/postgres"
+	"github.com/switchupcb/dbgo/cmd/constant"
 )
 
 const (
-	databaseConnectionEnvironmentVariableSymbol = '$'
-
-	templateGoSchemaFilename = "schema.go"
-
-	file_content_static = `
+	interpretedFileContentStatic = "package " + constant.PkgNameSchemaGo +
+		`
 
 import . "github.com/switchupcb/jet/v2/postgres"
 
@@ -37,156 +31,64 @@ func SQL() (string, error) {
 	`
 )
 
-// Template runs dbgo query template programmatically using the given filepath and YML.
-func Template(abspath string, yml config.YML) (string, error) {
-	if yml.Generated.Input.DB.Connection == "" {
-		return "", errors.New(err_database_unspecified)
-	}
+// Template runs dbgo query template programmatically using the given template name and YML.
+func Template(name string, yml config.YML) error {
+	// Copy the existing schema.go file for Go type autocompletion within the template.
+	copied := true
 
-	if yml.Generated.Input.DB.Connection[0] == databaseConnectionEnvironmentVariableSymbol {
-		yml.Generated.Input.DB.Connection = os.Getenv(yml.Generated.Input.DB.Connection[1:])
-	}
-
-	if yml.Generated.Input.DB.Schema == "" {
-		yml.Generated.Input.DB.Schema = "public"
-	}
-
-	template_name := filepath.Base(abspath)
-
-	fmt.Printf("ADDING TEMPLATE %v to %v\n\n", template_name, abspath)
-
-	// Generate the database schema models as Go types.
-	sqlGoDirpath := filepath.Join(
-		yml.Generated.Input.Queries, // queries
-		queriesGoTemplatesDirname,   // templates
-		template_name,               // template (name)
-		sqlGoDir,                    // go
+	queriesSchemaGoFilepath := filepath.Join(
+		yml.Generated.Input.Queries,       // queries
+		constant.DirnameQueriesSchema,     // schema
+		constant.FilenameTemplateSchemaGo, // schema.go
 	)
 
-	generatorTemplate := genTemplate()
-	if err := postgres.GenerateDSN(
-		yml.Generated.Input.DB.Connection,
-		yml.Generated.Input.DB.Schema,
-		sqlGoDirpath,
-		generatorTemplate,
-	); err != nil {
-		return "", fmt.Errorf("%w", err)
-	}
-
-	fmt.Println("Generated schema as models.")
-	fmt.Println()
-
-	// Merge generated files to a single schema.go file.
-	file_content_schemas := [][]byte{
-		[]byte("package " + template_name + "\n\n" + "import \"github.com/switchupcb/jet/v2/postgres\""),
-	}
-
-	if err := filepath.WalkDir(sqlGoDirpath, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() {
-			if filepath.Base(path) == "model" {
-				return nil
-			}
-
-			file_count, err := countDirFiles(path)
-			if err != nil {
-				return fmt.Errorf("directory file count: %w", err)
-			}
-
-			if file_count == 0 {
-				return nil
-			}
-
-			xstruct := exec.Command("xstruct", "-d", path, "-p", template_name, "-f", "-g")
-			std, err := xstruct.CombinedOutput()
-			if err != nil {
-				return fmt.Errorf("xstruct called from %q: %v", path, string(std))
-			}
-
-			file_content_schemas = append(file_content_schemas, std)
-		}
-
-		return nil
-	}); err != nil {
-		return "", fmt.Errorf("error flattening structs from generated SQL Go types: %w", err)
-	}
-
-	merger := NewMerger(template_name)
-	for i := range file_content_schemas {
-		if err := merger.parseFile("", file_content_schemas[i]); err != nil {
-			return "", fmt.Errorf("merge: file_content_schema: %w\n\n%v", err, string(file_content_schemas[i]))
-		}
-	}
-
-	delete(merger.addedImports, "\"github.com/go-jet/jet/postgres\"")
-
-	templateSchemaFilepath := filepath.Join(
-		yml.Generated.Input.Queries, // queries
-		queriesGoTemplatesDirname,   // templates
-		template_name,               // template (name)
-		templateGoSchemaFilename,    // schema.go
+	templateSchemaGoFilepath := filepath.Join(
+		yml.Generated.Input.Queries,       // queries
+		constant.DirnameQueriesTemplates,  // templates
+		name,                              // template (name)
+		constant.FilenameTemplateSchemaGo, // schema.go
 	)
 
-	if err := merger.WriteToFile(templateSchemaFilepath); err != nil {
-		return "", fmt.Errorf("merge: write: %w", err)
+	if _, err := os.Stat(queriesSchemaGoFilepath); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			fmt.Println(
+				"WARNING: The template's schema.go file was not updated because" +
+					"schema.go was not found at " + queriesSchemaGoFilepath +
+					"\n\tYou can use `db query schema` to regenerate a schema.go file." +
+					"\n\tThen, run `db query template` again to update the template's schema.go file.",
+			)
+
+			copied = false
+		} else {
+			return fmt.Errorf("error checking .../queries/schema/schema.go file space: %w", err)
+		}
 	}
 
-	if err := os.RemoveAll(sqlGoDirpath); err != nil {
-		return "", fmt.Errorf("merge: clean: %w", err)
+	if copied {
+		if err := constant.CopyFile(queriesSchemaGoFilepath, templateSchemaGoFilepath); err != nil {
+			return fmt.Errorf("error copying queries schema.go to template: %w", err)
+		}
 	}
 
-	// Create the interpreted function file.
-	file_content := []byte("package " + template_name + file_content_static)
-
-	templateFilepath := filepath.Join(
-		yml.Generated.Input.Queries, // queries
-		queriesGoTemplatesDirname,   // templates
-		template_name,               // template (name)
-		template_name+fileExtGo,     // template.go
+	// Create the interpreted function file when it doesn't exist.
+	templateInterpretedGoFilepath := filepath.Join(
+		yml.Generated.Input.Queries,      // queries
+		constant.DirnameQueriesTemplates, // templates
+		name,                             // template (name)
+		name+constant.FileExtGo,          // template.go
 	)
 
-	if _, err := os.Stat(templateFilepath); err == nil {
+	if _, err := os.Stat(templateInterpretedGoFilepath); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			fileContent := []byte(interpretedFileContentStatic)
 
-	} else if errors.Is(err, os.ErrNotExist) {
-		if err := os.WriteFile(templateFilepath, file_content, writeFileMode); err != nil {
-			return "", fmt.Errorf("template: write: %w", err)
-		}
-	} else {
-		return "", fmt.Errorf("error checking for template file space: %w", err)
-	}
-
-	return fmt.Sprintf("ADDED TEMPLATE %q to %v", template_name, filepath.Dir(templateFilepath)), nil
-}
-
-// countDirFiles counts the number of non-directory files in a directory.
-func countDirFiles(dirpath string) (int, error) {
-	file, err := os.Open(dirpath)
-	if err != nil {
-		return 0, err
-	}
-
-	defer file.Close()
-
-	list, err := file.Readdirnames(-1)
-	if err != nil {
-		return 0, err
-	}
-
-	var file_count int
-
-	for i := range list {
-		file_info, err := os.Stat(filepath.Join(dirpath, list[i]))
-		if err != nil {
-			return 0, err
-		}
-
-		if !file_info.IsDir() {
-			file_count++
+			if err := os.WriteFile(templateInterpretedGoFilepath, fileContent, constant.FileModeWrite); err != nil {
+				return fmt.Errorf("template: write: %w", err)
+			}
+		} else {
+			return fmt.Errorf("error checking template file space: %w", err)
 		}
 	}
 
-	return file_count, nil
+	return nil
 }

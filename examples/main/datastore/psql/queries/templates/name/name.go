@@ -1,4 +1,4 @@
-package name
+package sql
 
 import . "github.com/switchupcb/jet/v2/postgres"
 

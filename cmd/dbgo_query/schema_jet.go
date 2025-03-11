@@ -1,6 +1,7 @@
 package query
 
 import (
+	_ "github.com/lib/pq" //nolint:revive
 	"github.com/switchupcb/jet/v2/generator/metadata"
 	"github.com/switchupcb/jet/v2/generator/template"
 	"github.com/switchupcb/jet/v2/postgres"
