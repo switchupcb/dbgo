@@ -156,20 +156,22 @@ go install github.com/switchupcb/dbgo@latest
 | `db query template <name> -y path/to/yml` | Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`. |
 | `db query save <name> -y path/to/yml`     | Saves an SQL file _(with the same name as the template \[e.g., `name.sql`\])_ containing an SQL statement _(returned from the `SQL()` function in `name.go`)_ to the queries directory.                                                |
 
-_Here are additional usage notes._
+_Here are additional command usage notes._
 
 - _`-y`, `--yml`: The path to the YML file must be specified in reference to the current working directory._
 - _`db query template`: Every template is updated when this command is executed without a specified template._
 - _`db query save`: Every template is saved when this command is executed without a specified template._
-- _`db query save`: You are not required to initialize a `go.mod` file to run templates, but using `go get github.com/switchupcb/jet/v2@dbgo` in a `go.mod` related to the template files helps you identify compiler errors in your template files._
 
 #### How do you develop type-safe SQL?
 
-Running `db query template <name> -y path/to/yml` adds a `name.go` file with database models as Go types to your queries directory. 
+Running `db query template <name> -y path/to/yml` adds a `name.go` file with database models as Go types to your queries directory: You can use these Go types with [`jet`](https://github.com/go-jet/jet) to return an `stmt.Sql()` from `SQL()`, which cannot be interpreted unless the Go code referencing struct fields can be compiled.
 
-Use these Go types with [`jet`](https://github.com/go-jet/jet) to return an `stmt.Sql()` from `SQL()`, which cannot be interpreted unless the Go code referencing struct fields can be compiled.
+_Read <a href="https://github.com/go-jet/jet#how-quickly-bugs-are-found" target="_blank">"How quickly bugs are found"</a> for more information about writing type-safe SQL with Go._
 
-_Read <a href="https://github.com/go-jet/jet#how-quickly-bugs-are-found" target="_blank">"How quickly bugs are found"</a> for more information._
+You should consider these interpreter usage notes while using templates.
+-  You do not have to use `jet` to generate SQL programmatically.
+-  You are not required to initialize a `go.mod` file to run templates, but using `go get github.com/switchupcb/jet/v2@dbgo` in a `go.mod` related to the template files helps you identify compiler errors in your template files while using `jet`.
+-  `db query save <name>` interprets `schema.go` before `name.go`. So, do not reference declarations from `name.go` in `schema.go`.
 
 ### Step 6. Generate the database consumer package
 
