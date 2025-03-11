@@ -1,4 +1,4 @@
-package example
+package sql
 
 // SQL returns return an SQL statement.
 //

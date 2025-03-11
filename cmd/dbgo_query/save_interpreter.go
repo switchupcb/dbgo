@@ -18,7 +18,7 @@ const interpretedFunctionName = "SQL"
 func interpretFunction(dirpath string) (string, error) {
 	_, err := os.ReadDir(dirpath)
 	if err != nil {
-		return "", fmt.Errorf("error loading template: %v\nIs the relative or absolute filepath set correctly?\n%w", dirpath, err)
+		return "", fmt.Errorf("error loading template: %v\n\tIs the relative or absolute filepath set correctly?\n%w", dirpath, err)
 	}
 
 	// setup the interpreter
@@ -47,7 +47,7 @@ func interpretFunction(dirpath string) (string, error) {
 	}
 
 	// load the func from the interpreter
-	interpretedFunction := filepath.Base(dirpath) + "." + interpretedFunctionName
+	interpretedFunction := constant.PkgNameSchemaGo + "." + interpretedFunctionName
 
 	v, err := i.Eval(interpretedFunction)
 	if err != nil {
@@ -61,12 +61,12 @@ func interpretFunction(dirpath string) (string, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			r_msg, ok := r.(string)
+			recoverMsg, ok := r.(string)
 			if !ok {
 				fmt.Println("impossible recovery")
 			}
 
-			fmt.Printf("\t%v", r_msg)
+			fmt.Printf("\t%v", recoverMsg)
 
 			os.Exit(1)
 		}
@@ -74,7 +74,7 @@ func interpretFunction(dirpath string) (string, error) {
 
 	content, err := fn()
 	if err != nil {
-		return "", fmt.Errorf("%w", err)
+		return "", fmt.Errorf("SQL(): %w", err)
 	}
 
 	return content, nil

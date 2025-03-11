@@ -11,14 +11,14 @@ import (
 )
 
 const (
-	subcommand_description_save = "Saves an SQL file (with the same name as the template [e.g., `name.sql`]) containing an SQL statement (returned from the `SQL()` function in `name.go`) to the queries directory."
+	subcommandDescriptionSave = "Saves an SQL file (with the same name as the template [e.g., `name.sql`]) containing an SQL statement (returned from the `SQL()` function in `name.go`) to the queries directory."
 )
 
 // cmdSave represents the dbgo query save command.
 var cmdSave = &cobra.Command{
 	Use:   "save",
 	Short: "Save a type-safe SQL file to your queries directory.",
-	Long:  subcommand_description_save,
+	Long:  subcommandDescriptionSave,
 	Run: func(cmd *cobra.Command, args []string) {
 		// parse the "--yml" flag.
 		yml, err := parseFlagYML()
@@ -28,7 +28,7 @@ var cmdSave = &cobra.Command{
 			os.Exit(constant.OSExitCodeError)
 		}
 
-		// run the generator for each template.
+		// add each template to the filepath arguments when no filepath arguments are provided.
 		if len(args) == 0 {
 			queriesGoTemplatesDir := filepath.Join(yml.Generated.Input.Queries, constant.DirnameQueriesTemplates)
 			files, err := os.ReadDir(queriesGoTemplatesDir)
@@ -39,17 +39,8 @@ var cmdSave = &cobra.Command{
 			}
 
 			for i := range files {
-				output, err := query.Save(filepath.Join(queriesGoTemplatesDir, files[i].Name()), *yml)
-				if err != nil {
-					fmt.Fprintf(os.Stderr, "%v\n\n", fmt.Errorf("%w", err))
-
-					continue
-				}
-
-				fmt.Printf("%v\n\n", output)
+				args = append(args, filepath.Join(queriesGoTemplatesDir, files[i].Name()))
 			}
-
-			return
 		}
 
 		// run the generator for each filepath argument.
@@ -61,14 +52,19 @@ var cmdSave = &cobra.Command{
 				continue
 			}
 
-			output, err := query.Save(abspath, *yml)
-			if err != nil {
+			templateName := filepath.Base(abspath)
+
+			sqlFilename := templateName + constant.FileExtSQL
+
+			fmt.Printf("SAVING QUERY %v from template at %v\n", sqlFilename, abspath)
+
+			if err := query.Save(templateName, *yml); err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n\n", fmt.Errorf("%w", err))
 
 				continue
 			}
 
-			fmt.Printf("%v\n\n", output)
+			fmt.Printf("%v QUERY SAVED from template at %v\n\n", sqlFilename, abspath)
 		}
 	},
 }

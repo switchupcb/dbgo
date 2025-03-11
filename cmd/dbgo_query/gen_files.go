@@ -1,13 +1,25 @@
 package query
 
+import (
+	"fmt"
+	"path/filepath"
+)
+
 const (
-	file_name_dummy_sql    = "query.sql"
-	file_content_dummy_sql = `-- name: dummy :one
+	dirnameGeneratedQueriesOutput = "output"
+	filenameGeneratedQueriesSQL   = "query.sql"
+
+	filenamePlaceholderSQL    = "placeholder.sql"
+	fileContentPlaceholderSQL = `-- name: placeholder :one
 SELECT current_timestamp;
 	`
 
-	file_name_sqlc_json    = "crud.json"
-	file_content_sqlc_json = `{
+	filenameSQLCJSON = "crud.json"
+)
+
+// fileContentSQLCJSON returns the sqlc CRUD Generator JSON file content.
+func fileContentSQLCJSON(schemapath string) string {
+	return `{
   "version": "2",
   "plugins": [
     {
@@ -18,19 +30,22 @@ SELECT current_timestamp;
       }
     }
   ],
-  "sql": [
+  "sql": [` +
+		fmt.Sprintf(`
     {
-      "schema": "schema.sql",
-      "queries": "query.sql",
+      "schema": "%s",
+      "queries": "%s",
       "engine": "postgresql",
       "codegen": [
         {
-          "out": "output",
+          "out": "%s",
           "plugin": "gen-crud",
           "options": {}
         }
       ]
     }
+    `, filepath.ToSlash(schemapath), filenamePlaceholderSQL, dirnameGeneratedQueriesOutput) +
+		`
   ]
 }`
-)
+}

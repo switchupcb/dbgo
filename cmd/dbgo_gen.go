@@ -18,10 +18,10 @@ var cmdGen = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		// check for unexpected arguments
 		if len(args) != 0 {
-			args_string := strings.Join(args, " ")
-			fmt.Fprintf(os.Stderr, "Unexpected arguments found: %q", args_string)
+			argsString := strings.Join(args, " ")
+			fmt.Fprintf(os.Stderr, "Unexpected arguments found: %q", argsString)
 
-			if args_string == cmdQuery.Use {
+			if argsString == cmdQuery.Use {
 				fmt.Printf("\n\nDid you mean dbgo %v gen?", cmdQuery.Use)
 			}
 

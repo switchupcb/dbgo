@@ -26,18 +26,15 @@ linters:
 linters-settings:
   revive:
     rules:
-      - name: var-naming  # todo
-        disabled: true
-
-  stylecheck:
-    checks:
-      - "-ST1003" # todo
+      - name: unused-parameter
+        arguments:
+          - allowRegex: "cmd||args"
 
 issues:
   exclude-files:
     - extract.*
     - cmd/dbgo_gen/run.go
-    - cmd/dbgo_query/template_merger.go
-    - cmd/dbgo_query/template_jet.go
-
- 
+    - cmd/dbgo_query/schema_copy.go
+    - cmd/dbgo_query/schema_merger.go
+    - cmd/dbgo_query/schema_jet.go
+    - cmd/dbgo_query/schema_xstruct.go

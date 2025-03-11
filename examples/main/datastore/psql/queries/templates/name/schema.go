@@ -1,4 +1,4 @@
-package name
+package sql
 
 import "github.com/switchupcb/jet/v2/postgres"
 
@@ -8,10 +8,6 @@ var (
 )
 
 type (
-	UsersTable	struct {
-		usersTable
-		EXCLUDED	usersTable
-	}
 	accountsTable	struct {
 		postgres.Table
 		ID		postgres.ColumnInteger
@@ -39,6 +35,10 @@ type (
 		AllColumns	postgres.ColumnList
 		MutableColumns	postgres.ColumnList
 		DefaultColumns	postgres.ColumnList
+	}
+	UsersTable	struct {
+		usersTable
+		EXCLUDED	usersTable
 	}
 )
 

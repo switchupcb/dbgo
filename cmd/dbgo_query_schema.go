@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	subcommand_description_schema = "Generates a schema.sql and schema.go file representing your database in the queries directory."
+	subcommandDescriptionSchema = "Generates a schema.sql and schema.go file representing your database in the queries directory."
 )
 
 var (
@@ -22,7 +22,7 @@ var (
 var cmdSchema = &cobra.Command{
 	Use:   "schema",
 	Short: "Generate a schema.sql and schema.go file in your queries directory.",
-	Long:  subcommand_description_schema,
+	Long:  subcommandDescriptionSchema,
 	Run: func(cmd *cobra.Command, args []string) {
 		// parse the "--yml" flag.
 		yml, err := parseFlagYML()
@@ -33,22 +33,30 @@ var cmdSchema = &cobra.Command{
 		}
 
 		// generate the schema files.
-		if *cmdSchemaFlagSQL != *cmdSchemaFlagGo {
-			if *cmdSchemaFlagSQL {
+		fmt.Println("Generating schema file(s).")
 
-			}
-
-			if *cmdSchemaFlagGo {
-
-			}
+		// Here is the configuration matrix for this command.
+		//
+		// ---------------------------------------------
+		// | SQL   | Go    | Result                    |
+		// ---------------------------------------------
+		// | false | false | Generate both.            |
+		// | true  | true  | Generate both.            |
+		// | false | true  | Generate schema.go only.  |
+		// | true  | false | Generate schema.sql only. |
+		// |-------------------------------------------|
+		if *cmdSchemaFlagSQL == *cmdSchemaFlagGo {
+			*cmdSchemaFlagSQL = true
+			*cmdSchemaFlagGo = true
 		}
 
-		output, err := query.Schema(*yml)
-		if err != nil {
+		if err := query.Schema(*yml, *cmdSchemaFlagGo, *cmdSchemaFlagSQL); err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n\n", fmt.Errorf("%w", err))
+
+			os.Exit(constant.OSExitCodeError)
 		}
 
-		fmt.Printf("%v\n\n", output)
+		fmt.Println("\nGenerated schema file(s).")
 	},
 }
 

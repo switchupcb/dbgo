@@ -1,8 +1,6 @@
 package query
 
 import (
-	"fmt"
-
 	xstructConfig "github.com/switchupcb/xstruct/cli/config"
 	xstructGen "github.com/switchupcb/xstruct/cli/generator"
 	xstructParser "github.com/switchupcb/xstruct/cli/parser"
@@ -13,11 +11,11 @@ import (
 func xstruct(dirpath, pkg string) ([]byte, error) {
 	gen, err := xstructConfig.LoadFiles(dirpath)
 	if err != nil {
-		return nil, fmt.Errorf("%w", err)
+		return nil, err
 	}
 
 	if err = xstructParser.Parse(gen, true, true); err != nil {
-		return nil, fmt.Errorf("%w", err)
+		return nil, err
 	}
 
 	content := xstructGen.AstWriteDecls(pkg, gen.ASTDecls, gen.FuncDecls)
@@ -25,7 +23,7 @@ func xstruct(dirpath, pkg string) ([]byte, error) {
 	// imports
 	importsdata, err := imports.Process("", content, nil)
 	if err != nil {
-		return nil, fmt.Errorf("%w", err)
+		return nil, err
 	}
 
 	return importsdata, nil

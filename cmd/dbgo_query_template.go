@@ -11,14 +11,14 @@ import (
 )
 
 const (
-	subcommand_description_template = "Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`."
+	subcommandDescriptionTemplate = "Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`."
 )
 
 // cmdTemplate represents the dbgo query template command.
 var cmdTemplate = &cobra.Command{
 	Use:   "template",
 	Short: "Add an SQL generator template to your queries directory.",
-	Long:  subcommand_description_template,
+	Long:  subcommandDescriptionTemplate,
 	Run: func(cmd *cobra.Command, args []string) {
 		// parse the "--yml" flag.
 		yml, err := parseFlagYML()
@@ -28,7 +28,7 @@ var cmdTemplate = &cobra.Command{
 			os.Exit(constant.OSExitCodeError)
 		}
 
-		// run the generator for each template.
+		// add each template to the filepath arguments when no filepath arguments are provided.
 		if len(args) == 0 {
 			queriesGoTemplatesDir := filepath.Join(yml.Generated.Input.Queries, constant.DirnameQueriesTemplates)
 			files, err := os.ReadDir(queriesGoTemplatesDir)
@@ -39,17 +39,8 @@ var cmdTemplate = &cobra.Command{
 			}
 
 			for i := range files {
-				output, err := query.Template(filepath.Join(queriesGoTemplatesDir, files[i].Name()), *yml)
-				if err != nil {
-					fmt.Fprintf(os.Stderr, "%v\n\n", fmt.Errorf("%w", err))
-
-					continue
-				}
-
-				fmt.Printf("%v\n\n", output)
+				args = append(args, filepath.Join(queriesGoTemplatesDir, files[i].Name()))
 			}
-
-			return
 		}
 
 		// run the generator for each filepath argument.
@@ -61,14 +52,23 @@ var cmdTemplate = &cobra.Command{
 				continue
 			}
 
-			output, err := query.Template(abspath, *yml)
-			if err != nil {
+			templateName := filepath.Base(abspath)
+
+			templateDirpath := filepath.Join(
+				yml.Generated.Input.Queries,      // queries
+				constant.DirnameQueriesTemplates, // templates
+				templateName,                     // template (name)
+			)
+
+			fmt.Printf("UPDATING TEMPLATE %q at %v\n", templateName, templateDirpath)
+
+			if err := query.Template(templateName, *yml); err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n\n", fmt.Errorf("%w", err))
 
 				continue
 			}
 
-			fmt.Printf("%v\n\n", output)
+			fmt.Printf("UPDATED TEMPLATE %q at %v\n\n", templateName, templateDirpath)
 		}
 	},
 }

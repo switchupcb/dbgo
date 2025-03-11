@@ -11,14 +11,14 @@ import (
 )
 
 const (
-	program_description = `dbgo generates a database consumer package for your database and domain models (i.e., Go types).`
+	programDescription = `dbgo generates a database consumer package for your database and domain models (i.e., Go types).`
 )
 
 // cmdDBGO represents the base command when called without any subcommands.
 var cmdDBGO = &cobra.Command{
 	Use:   "dbgo",
-	Short: program_description,
-	Long:  program_description,
+	Short: programDescription,
+	Long:  programDescription,
 	CompletionOptions: cobra.CompletionOptions{
 		DisableDefaultCmd:   true,
 		DisableNoDescFlag:   false,
