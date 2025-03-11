@@ -3,7 +3,7 @@
 [![Go Doc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=for-the-badge&logo=appveyor&logo=appveyor)](https://pkg.go.dev/github.com/switchupcb/dbgo)
 [![License](https://img.shields.io/github/license/switchupcb/dbgo.svg?style=for-the-badge)](https://github.com/switchupcb/dbgo/blob/main/LICENSE)
 
-Use `dbgo` to stop wasting time developing optimized code (e.g, `Go`, `SQL`) for your database and domain models.
+Use `dbgo` to stop wasting time developing optimized SQL and Go code for your database and domain models.
 
 _NOTE: You can read the [roadmap](/ROADMAP.md) for a list of implemented features as this repository is under development._
 
