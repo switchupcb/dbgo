@@ -54,8 +54,8 @@ func Template(name string, yml config.YML) error {
 			fmt.Println(
 				"WARNING: The template's schema.go file was not updated because" +
 					"schema.go was not found at " + queriesSchemaGoFilepath +
-					"\n\tYou can use `db query schema` to regenerate a schema.go file." +
-					"\n\tThen, run `db query template` again to update the template's schema.go file.",
+					"\n\tYou can use `dbgo query schema` to regenerate a schema.go file." +
+					"\n\tThen, run `dbgo query template` again to update the template's schema.go file.",
 			)
 
 			copied = false

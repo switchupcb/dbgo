@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	subcommandDescriptionTemplate = "Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`."
+	subcommandDescriptionTemplate = "Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `dbgo query save`."
 )
 
 // cmdTemplate represents the dbgo query template command.

@@ -149,29 +149,29 @@ go install github.com/switchupcb/dbgo@latest
 
 **3\)** Run the executable with the following options to add SQL to the queries directory.
 
-| Command Line                              | Description                                                                                                                                                                                                                            |
-| :---------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `db query schema -y path/to/yml`          | Generates a `schema.sql` and `schema.go` file representing your database in the queries directory.                                                                                                                                     |
-| `db query gen -y path/to/yml`             | Generates SQL queries for Read (Select) operations and Create (Insert), Update, Delete operations.                                                                                                                                     |
-| `db query template <name> -y path/to/yml` | Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `db query save`. |
-| `db query save <name> -y path/to/yml`     | Saves an SQL file _(with the same name as the template \[e.g., `name.sql`\])_ containing an SQL statement _(returned from the `SQL()` function in `name.go`)_ to the queries directory.                                                |
+| Command Line                                | Description                                                                                                                                                                                                                              |
+| :------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dbgo query schema -y path/to/yml`          | Generates a `schema.sql` and `schema.go` file representing your database in the queries directory.                                                                                                                                       |
+| `dbgo query gen -y path/to/yml`             | Generates SQL queries for Read (Select) operations and Create (Insert), Update, Delete operations.                                                                                                                                       |
+| `dbgo query template <name> -y path/to/yml` | Adds a `name` template to the queries `templates` directory. The template contains Go type database models you can use to return a type-safe SQL statement from the `SQL()` function in `name.go` which is  called by `dbgo query save`. |
+| `dbgo query save <name> -y path/to/yml`     | Saves an SQL file _(with the same name as the template \[e.g., `name.sql`\])_ containing an SQL statement _(returned from the `SQL()` function in `name.go`)_ to the queries directory.                                                  |
 
 _Here are additional command usage notes._
 
 - _`-y`, `--yml`: The path to the YML file must be specified in reference to the current working directory._
-- _`db query template`: Every template is updated when this command is executed without a specified template._
-- _`db query save`: Every template is saved when this command is executed without a specified template._
+- _`dbgo query template`: Every template is updated when this command is executed without a specified template._
+- _`dbgo query save`: Every template is saved when this command is executed without a specified template._
 
 #### How do you develop type-safe SQL?
 
-Running `db query template <name> -y path/to/yml` adds a `name.go` file with database models as Go types to your queries directory: You can use these Go types with [`jet`](https://github.com/go-jet/jet) to return an `stmt.Sql()` from `SQL()`, which cannot be interpreted unless the Go code referencing struct fields can be compiled.
+Running `dbgo query template <name> -y path/to/yml` adds a `name.go` file with database models as Go types to your queries directory: You can use these Go types with [`jet`](https://github.com/go-jet/jet) to return an `stmt.Sql()` from `SQL()`, which cannot be interpreted unless the Go code referencing struct fields can be compiled.
 
 _Read <a href="https://github.com/go-jet/jet#how-quickly-bugs-are-found" target="_blank">"How quickly bugs are found"</a> for more information about writing type-safe SQL with Go._
 
 You should consider these interpreter usage notes while using templates.
 -  You do not have to use `jet` to generate SQL programmatically.
 -  You are not required to initialize a `go.mod` file to run templates, but using `go get github.com/switchupcb/jet/v2@dbgo` in a `go.mod` related to the template files helps you identify compiler errors in your template files while using `jet`.
--  `db query save <name>` interprets `schema.go` before `name.go`. So, do not reference declarations from `name.go` in `schema.go`.
+-  `dbgo query save <name>` interprets `schema.go` before `name.go`. So, do not reference declarations from `name.go` in `schema.go`.
 
 ### Step 6. Generate the database consumer package
 
