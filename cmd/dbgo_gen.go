@@ -10,6 +10,10 @@ import (
 	gen "github.com/switchupcb/dbgo/cmd/dbgo_gen"
 )
 
+var (
+	cmdCombinedFlag = new(bool)
+)
+
 // cmdGen represents the dbgo gen command.
 var cmdGen = &cobra.Command{
 	Use:   "gen",
@@ -19,6 +23,7 @@ var cmdGen = &cobra.Command{
 		// check for unexpected arguments
 		if len(args) != 0 {
 			argsString := strings.Join(args, " ")
+
 			fmt.Fprintf(os.Stderr, "Unexpected arguments found: %q", argsString)
 
 			if argsString == cmdQuery.Use {
@@ -37,17 +42,20 @@ var cmdGen = &cobra.Command{
 		}
 
 		// Run the generator.
-		output, err := gen.Run(*yml)
-		if err != nil {
+		fmt.Println("Generating Go code based on SQL statements.")
+
+		if err := gen.Gen(*yml, *cmdCombinedFlag); err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", fmt.Errorf("%w", err))
 
 			os.Exit(constant.OSExitCodeError)
 		}
 
-		fmt.Println(output)
+		fmt.Println("\nGenerated Go code based on SQL statements.")
 	},
 }
 
 func init() {
 	cmdDBGO.AddCommand(cmdGen)
+
+	cmdCombinedFlag = cmdGen.Flags().BoolP("keep", "k", false, "Use --keep to keep a copy of the generated `combined.sql` file in the queries directory.")
 }

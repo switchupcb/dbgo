@@ -7,14 +7,21 @@ const (
 	DatabaseConnectionEnvironmentVariableSymbol = '$'
 	DatabaseSchemaNameDefault                   = "public"
 
-	DirnameQueriesTemplates         = "templates"
-	DirnameQueriesSchema            = "schema"
-	DirnameTempQueriesGenerationGo  = "dbgoquerygentempgo"
-	DirnameTempQueriesGenerationSQL = "dbgoquerygentempsql"
+	DirnameQueriesTemplates = "templates"
+	DirnameQueriesSchema    = "schema"
 
-	FilenameTemplateSchemaGo = "schema.go"
-	FilenameQueriesSchemaSQL = "schema.sql"
-	PkgNameSchemaGo          = "sql"
+	DirnameTempQueriesGenerationGo   = "dbgoquerygentempgo"
+	DirnameTempQueriesGenerationSQL  = "dbgoquerygentempsql"
+	DirnameTempQueriesGenerationSQLC = "dbgoquerygentempsqlc"
+
+	FilenameTemplateSchemaGo       = "schema.go"
+	FilenameQueriesSchemaSQL       = "schema.sql"
+	FilenameQueriesCombinedSQL     = "combined.sql"
+	FilenameQueriesCombinedSQLKept = "_dbgo.sql"
+
+	FilenameSQLConfig = "sqlc.yaml"
+
+	PkgNameSchemaGo = "sql"
 )
 
 // Variables defined by the program.

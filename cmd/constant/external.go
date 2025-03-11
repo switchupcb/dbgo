@@ -9,13 +9,13 @@ const (
 	FileModeWrite = 0644
 
 	// Newline represents a newline character.
-	Newline = '\n'
+	Newline byte = '\n'
 
 	// Colon represents a colon character.
-	Colon = ':'
+	Colon byte = ':'
 
 	// Whitesoace represents a whitespace character.
-	Whitespace = ' '
+	Whitespace byte = ' '
 
 	// FileExtSQL represents an SQL file extension.
 	FileExtSQL = ".sql"

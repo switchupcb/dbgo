@@ -65,7 +65,7 @@ func Template(name string, yml config.YML) error {
 	}
 
 	if copied {
-		if err := copyFile(queriesSchemaGoFilepath, templateSchemaGoFilepath); err != nil {
+		if err := constant.CopyFile(queriesSchemaGoFilepath, templateSchemaGoFilepath); err != nil {
 			return fmt.Errorf("error copying queries schema.go to template: %w", err)
 		}
 	}
