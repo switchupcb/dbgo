@@ -13,7 +13,6 @@ You can use the `dbgo query` manager to manage your SQL statements or generate t
   
 You can use `dbgo gen` to generate Database Driver Go code which calls your SQL queries based on the database as a single source of truth.
 
-
 ## Delayed
 
 The following features are delayed due to a change in the maintainer's priorities.

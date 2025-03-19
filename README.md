@@ -189,7 +189,7 @@ dbgo gen -y path/to/yml
 
 _The path to the YML file must be specified in reference to the current working directory._
 
-**You can view the output of this example [here](/examples/main/).**
+**You can view the output and usage of this example [here](/examples/main/).**
 
 ## What is the License?
 
