@@ -30,7 +30,7 @@ func main() {
 	}
 
 	// Insert an account.
-	psql.Database().InsertAccount(
+	_, err = psql.Database().InsertAccount(
 		context.Background(),
 		psql.InsertAccountParams{
 			FirstName: pgtype.Text{
